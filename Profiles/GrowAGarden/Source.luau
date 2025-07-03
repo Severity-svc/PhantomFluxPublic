@@ -18,17 +18,17 @@ end
 local Util = NewHandler:GetDirectory(
 	RunMode,
 	"Utility.luau",
-	"https://raw.githubusercontent.com/Severity-svc/PhantomFlux/main/Profiles/GrowAGarden/Handler.luau"
+	"https://raw.githubusercontent.com/Severity-svc/PhantomFluxPublic/refs/heads/main/Profiles/GrowAGarden/Handler.luau"
 )
 local Library = NewHandler:GetDirectory(
 	RunMode,
 	"Library.luau",
-	"https://raw.githubusercontent.com/Severity-svc/PhantomFlux/main/Profiles/GrowAGarden/Library.luau"
+	"https://raw.githubusercontent.com/Severity-svc/PhantomFluxPublic/refs/heads/main/Profiles/GrowAGarden/Library.luau"
 )
 local Module = NewHandler:GetDirectory(
 	RunMode,
 	"Modules.luau",
-	"https://raw.githubusercontent.com/Severity-svc/PhantomFlux/main/Profiles/GrowAGarden/Module.luau"
+	"https://raw.githubusercontent.com/Severity-svc/PhantomFluxPublic/refs/heads/main/Profiles/GrowAGarden/Module.luau"
 )
 
 --// Init Library

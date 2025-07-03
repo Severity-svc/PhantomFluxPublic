@@ -6,6 +6,7 @@ Library.__index = Library
 local RunMode = "Developer Mode"
 
 local WindUI = loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/latest/download/main.lua"))()
+local ExistingWindow = nil
 
 function Library:Init()
 	if not WindUI then
@@ -33,6 +34,8 @@ function Library:Init()
 			KeySystem = false, --// Will use our custom keysystem in the loader.luau
 		})
 
+		ExistingWindow = Window
+
 		return Window
 	end)
 
@@ -44,7 +47,7 @@ function Library:Init()
 end
 
 function Library:CreateTab(Name, Icon)
-	local Window = self:Init()
+	local Window = ExistingWindow or self:Init()
 
 	if not Window then
 		error("[Library] Failed to find Window")
@@ -71,7 +74,7 @@ function Library:Notify(Table)
 end
 
 function Library:SelectTab(Index)
-	local Window = self:Init()
+	local Window = ExistingWindow or self:Init()
 
 	if not Window then
 		error("[Library] Failed to find Window")
@@ -82,7 +85,7 @@ function Library:SelectTab(Index)
 end
 
 function Library:AddConfigSection()
-	local Window = self:Init()
+	local Window = ExistingWindow or self:Init()
 
 	local Divider = Window:Divider()
 	local WindowTab = Window:Tab({

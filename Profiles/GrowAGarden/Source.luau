@@ -1,7 +1,7 @@
 --// RunMode: This is for adding updates to the source, make sure to change it to "Public" when you are done.
 local RunMode = "Public"
 
---// Loading Modules
+--// Loading Handler
 local OldHandler = loadstring(
 	game:HttpGet(
 		"https://raw.githubusercontent.com/Severity-svc/PhantomFluxPublic/refs/heads/main/Profiles/GrowAGarden/Handler.luau"

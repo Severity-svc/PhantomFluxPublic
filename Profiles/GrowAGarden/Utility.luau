@@ -51,6 +51,7 @@ local Util = {
 	},
 
 	Mutations = {
+		"All",
 		"Overgrown",
 		"Wet",
 		"Chilled",
@@ -85,6 +86,26 @@ local Util = {
 		"Aurora",
 		"Fried",
 		"Cloudtouched",
+	},
+
+	Services = {
+		Players = game:GetService("Players"),
+		ReplicatedStorage = game:GetService("ReplicatedStorage"),
+		RunService = game:GetService("RunService"),
+		HttpService = game:GetService("HttpService"),
+		Workspace = game:GetService("Workspace"),
+		UserInputService = game:GetService("UserInputService"),
+	},
+
+	LocalPlayer = {
+		Player = game.Players.LocalPlayer,
+		Character = game.Players.LocalPlayer.Character or game.Players.LocalPlayer.CharacterAdded:Wait(),
+		Humanoid = game.Players.LocalPlayer.Character:WaitForChild("Humanoid"),
+		HumanoidRootPart = game.Players.LocalPlayer.Character:WaitForChild("HumanoidRootPart"),
+		Backpack = game.Players.LocalPlayer:WaitForChild("Backpack"),
+		PlayerGui = game.Players.LocalPlayer:WaitForChild("PlayerGui"),
+
+		Mouse = game.Players.LocalPlayer:GetMouse(),
 	},
 }
 

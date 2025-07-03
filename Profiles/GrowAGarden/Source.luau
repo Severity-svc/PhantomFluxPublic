@@ -23,18 +23,25 @@ local Module = NewHandler:GetDirectory(RunMode, "Modules.luau")
 local Window = Library:Init()
 
 --// Tabs
-local AboutUs = Window:CreateTab("About Us", "info")
-local Farming = Window:CreateTab("Farming", "plant")
-local Stock = Window:CreateTab("Stock", "money")
-local Player = Window:CreateTab("Player", "user")
-local Visual = Window:CreateTab("Visual", "eye")
-local Event = Window:CreateTab("Event", "calendar")
-local Misc = Window:CreateTab("Misc", "ellipsis")
+local AboutUs = Library:CreateTab("About Us", "info")
+local Farming = Library:CreateTab("Farming", "plant")
+local Stock = Library:CreateTab("Stock", "money")
+local Player = Library:CreateTab("Player", "user")
+local Visual = Library:CreateTab("Visual", "eye")
+local Event = Library:CreateTab("Event", "calendar")
+local Misc = Library:CreateTab("Misc", "ellipsis")
 
 local Other = Library:AddConfigSection()
 
 --// Utility
 local Config = Util.Config
+local Services = Util.Services
+local LocalPlayer = Util.LocalPlayer.Player
+local Character = Util.LocalPlayer.Character
+local Humanoid = Util.LocalPlayer.Humanoid
+local HumanoidRootPart = Util.LocalPlayer.HumanoidRootPart
+local Backpack = Util.LocalPlayer.Backpack
+local PlayerGui = Util.LocalPlayer.PlayerGui
 
 --// About Us
 Window:SelectTab(1) -- Select the first tab by default (About Us)
@@ -95,13 +102,13 @@ AboutUs:Button({
 	end,
 })
 
---// Farming
+--// Farming, Auto Harvest
 local AutoHarvest = Library:CreateSection(Farming, "Auto Harvest")
 local TargetPlants = nil --// Possible value types: nil, string, table {nil - none, string - one selected, table - multiple selected}
 local TargetMutations = nil --// Possible value types: nil, string, table {nil - none, string - one selected, table - multiple selected}
 
 local PlantsToHarvest = Library:CreateDropdown(Farming, {
-	Title = "Plants To Harvest",
+	Title = "Plants to Harvest",
 	Values = NewHandler:SortArray(Util.Fruits),
 	Value = { "All" },
 	Multi = true,
@@ -112,7 +119,7 @@ local PlantsToHarvest = Library:CreateDropdown(Farming, {
 })
 
 local Mutations = Library:CreateDropdown(Farming, {
-	Title = "Mutations",
+	Title = "Required Mutations",
 	Values = NewHandler:SortArray(Util.Mutations),
 	Value = { "All" },
 	Multi = true,
@@ -122,8 +129,70 @@ local Mutations = Library:CreateDropdown(Farming, {
 	end,
 })
 
-AutoHarvest:Toggle({
-	Title = "Auto Harvest",
-	Icon = "check",
-	Callback = function(State) end,
-})
+Module:Init(function()
+	local ConnectionInit = Module:SpawnConnection()
+	local Connection = nil
+
+	Farming:Toggle({
+		Title = "AutoHarvest",
+		Desc = "Automatically Harvest Plants Based On Your Filters",
+		Icon = "check",
+		Type = "Checkbox",
+		Default = false,
+		Callback = function(State)
+			if State then
+				ConnectionInit:Disconnect(Connection)
+
+				Connection = ConnectionInit:Connect("Heartbeat", function()
+					local Farm, Important = Module:GetFarm()
+					if not Farm or not Important then
+						warn("[AutoHarvest] Failed to find Farm or Important folder")
+						return
+					end
+
+					if not TargetPlants or not TargetMutations then
+						warn("[AutoHarvest] No plants or mutations selected")
+						return
+					end
+
+					local Plants = Module:GetPlant(TargetPlants)
+					if not Plants then
+						warn("[AutoHarvest] No plants found for selected filters")
+						return
+					end
+
+					if type(Plants) ~= "table" then
+						Plants = { Plants }
+					end
+
+					for _, v in pairs(Plants) do
+						if TargetMutations[1] == "All" or Module:HasMutation(v, TargetMutations) then
+							local FruitsFolder = v:FindFirstChild("Fruits")
+							if FruitsFolder then
+								for _, Fruit in pairs(FruitsFolder:GetChildren()) do
+									if Fruit:IsA("Model") then
+										local IsReady = Fruit:FindFirstChild("IsReady")
+										if (IsReady and IsReady.Value) or not IsReady then
+											local Proxy = Module:GetProxy(Fruit)
+											if Proxy then
+												fireproximityprompt(Proxy)
+											end
+										end
+									end
+								end
+							else
+								local Proxy = Module:GetProxy(v)
+								if Proxy then
+									fireproximityprompt(Proxy)
+								end
+							end
+						end
+					end
+				end)
+			else
+				ConnectionInit:Disconnect(Connection)
+				Connection = nil
+			end
+		end,
+	})
+end)

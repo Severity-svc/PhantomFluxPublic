@@ -162,4 +162,48 @@ function ModuleHandler:Plant(Position, Name)
 	game:GetService("ReplicatedStorage"):WaitForChild("GameEvents"):WaitForChild("Plant_RE"):FireServer(unpack(args))
 end
 
+function ModuleHandler:GetSeeds()
+	local Backpack = Util.LocalPlayer.Backpack
+	local Seeds = {}
+
+	for _, v in pairs(Backpack:GetChildren()) do
+		if v:IsA("Tool") and v.Name:find("Seed") then
+			table.insert(Seeds, v)
+		end
+	end
+
+	return Seeds
+end
+
+function ModuleHandler:GetPosition(PlantMethod)
+	if PlantMethod == "Random" then
+		local Farm = self:GetFarm()
+		local PetArea = Farm and Farm:FindFirstChild("PetArea")
+		if not PetArea then
+			warn("[GetPosition] PetArea not found")
+			return nil
+		end
+
+		local Area = PetArea.Size
+
+		local X = (math.random() - 0.5) * Area.X
+		local Y = (math.random() - 0.5) * Area.Y
+		local Z = (math.random() - 0.5) * Area.Z
+
+		return PetArea.Position + Vector3.new(X, Y, Z)
+	elseif PlantMethod == "UnderPlayer" then
+		return HumanoidRootPart and HumanoidRootPart.Position or nil
+	elseif PlantMethod == "UnderMouse" then
+		local Mouse = Util.LocalPlayer.Mouse
+		if Mouse and Mouse.Target then
+			return Mouse.Hit.p
+		else
+			return nil
+		end
+	else
+		error("[Module:GetPosition] Invalid Method: " .. tostring(PlantMethod))
+		return nil
+	end
+end
+
 return ModuleHandler

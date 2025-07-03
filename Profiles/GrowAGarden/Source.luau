@@ -252,7 +252,40 @@ Module:Init(function()
 			if State then
 				ConnectionInit:Disconnect(Connection)
 
-				Connection = ConnectionInit:Connect("Heartbeat", function() end)
+				Connection = ConnectionInit:Connect("Heartbeat", function()
+					local Seeds = Module:GetSeeds()
+					if TargetPlants2 == "All" then
+						for _, v in pairs(Seeds) do
+							if v:IsA("Tool") then
+								local FruitName = v.Name:match("^(.-) Seed$")
+
+								if FruitName then
+									Module:Plant(Module:GetPosition(PlantMethod), FruitName)
+								end
+							end
+						end
+					elseif type(TargetPlants2) == "string" and not TargetPlants2 == "All" then
+						for _, v in pairs(Seeds) do
+							if v:IsA("Tool") then
+								local FruitName = v.Name:match("^(.-) Seed$")
+
+								if FruitName and FruitName == TargetPlants2 then
+									Module:Plant(Module:GetPosition(PlantMethod), FruitName)
+								end
+							end
+						end
+					elseif type(TargetPlants2) == "table" and #TargetPlants2 > 0 then
+						for _, v in pairs(Seeds) do
+							if v:IsA("Tool") then
+								local FruitName = v.Name:match("^(.-) Seed$")
+
+								if FruitName and table.find(TargetPlants2, FruitName) then
+									Module:Plant(Module:GetPosition(PlantMethod), FruitName)
+								end
+							end
+						end
+					end
+				end)
 			else
 				ConnectionInit:Disconnect(Connection)
 				Connection = nil

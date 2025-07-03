@@ -4,21 +4,6 @@ Handler.Attribute = "Public"
 
 Handler.__index = Handler
 
-function Handler:Loadstring(Url)
-	if type(Url) ~= "string" then
-		error("[Handler]: Url must be a string")
-	end
-	local Success, Result = pcall(function()
-		return game:HttpGet(Url)
-	end)
-
-	if not Success then
-		error("[Handler]: Failed to load string from URL")
-	end
-
-	return Result
-end
-
 function Handler:GetDirectory(RunMode, FileName, URL)
 	if RunMode == "Developer Mode" then
 		if self:IsSupported("readfile") and self:IsSupported("isfile") and self:IsSupported("listfiles") then
@@ -41,14 +26,14 @@ function Handler:GetDirectory(RunMode, FileName, URL)
 		end
 	elseif RunMode == "Public" then
 		if URL then
-			return self:Loadstring(URL)
+			return loadstring(Url)()
 		else
 			local URLPath = "https://raw.githubusercontent.com/Severity-svc/PhantomFlux/main/Profiles/"
 				.. self.Name
 				.. "/"
 				.. FileName
 
-			return self:Loadstring(URLPath)
+			return loadstring(URLPath)()
 		end
 	else
 		error("[Handler]: Invalid RunMode")

@@ -242,9 +242,6 @@ Module:Init(function()
 	local Position = Config["Auto Plant"].Position
 	local Farm, Important = Module:GetFarm()
 
-	local LastTick = 0
-	local Delay = 0.1
-
 	Farming:Toggle({
 		Title = "Auto Plant",
 		Desc = "Automatically Plant Stuff Based On Your Farm",
@@ -255,33 +252,7 @@ Module:Init(function()
 			if State then
 				ConnectionInit:Disconnect(Connection)
 
-				Connection = ConnectionInit:Connect("Heartbeat", function()
-					local currentTime = tick()
-					if currentTime - LastTick < Delay then
-						return
-					end
-					LastTick = currentTime
-
-					local Seeds = Module:GetSeeds()
-					local Position = Module:GetPosition(PlantMethod)
-
-					if Seeds and Position then
-						for _, seedTool in pairs(Seeds) do
-							local fruitName = seedTool.Name:match("^(.-) Seed$")
-							if
-								fruitName
-								and (
-									TargetPlants2 == "All"
-									or (type(TargetPlants2) == "string" and TargetPlants2 == fruitName)
-									or (type(TargetPlants2) == "table" and table.find(TargetPlants2, fruitName))
-								)
-							then
-								Module:EquipTool(fruitName)
-								Module:Plant(Position, fruitName)
-							end
-						end
-					end
-				end)
+				Connection = ConnectionInit:Connect("Heartbeat", function() end)
 			else
 				ConnectionInit:Disconnect(Connection)
 				Connection = nil

@@ -187,13 +187,18 @@ end
 
 function ModuleHandler:Plant(Plant, Method)
 	if not Plant or not Method then
-		error("[ModuleHandler] Plant and Position must be provided")
+		error("[ModuleHandler] Plant and Method must be provided")
 		return
 	end
 
 	local PlantRE = Util.Remotes.PlantRE
 
-	local HasPlant, Equip = self:GetSeed(Plant, true)
+	local HasPlant = self:GetSeed(Plant, true)
+	if not HasPlant then
+		warn("[ModuleHandler:Plant] Seed not found in backpack")
+		return
+	end
+
 	if Method == "Random" then
 		local Farm = self:GetFarm()
 		if not Farm then
@@ -209,12 +214,14 @@ function ModuleHandler:Plant(Plant, Method)
 
 		PlantRE:FireServer(Position, Plant)
 	elseif Method == "UnderPlayer" then
-		local Position = Util.LocalPlayer.HumanoidRootPart.Position
+		local Character = Util.LocalPlayer.Character or Util.LocalPlayer.CharacterAdded:Wait()
+		local HRP = Character:WaitForChild("HumanoidRootPart")
+		local Position = HRP.Position
 		PlantRE:FireServer(Position, Plant)
 	elseif Method == "UnderMouse" then
-		local Mouse = Util.LocalPlayer.Mouse
+		local Mouse = Util.LocalPlayer:GetMouse()
 		if Mouse and Mouse.Hit then
-			local Position = Mouse.Hit.p
+			local Position = Mouse.Hit.Position
 			PlantRE:FireServer(Position, Plant)
 		else
 			warn("[ModuleHandler:Plant] Mouse hit not found")

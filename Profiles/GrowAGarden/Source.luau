@@ -232,7 +232,7 @@ local PlantMethods = Library:CreateDropdown(Farming, {
 	Multi = false,
 	AllowNone = true,
 	Callback = function(option)
-		--PlantMethod = option
+		PlantMethod = option
 	end,
 })
 
@@ -241,6 +241,9 @@ Module:Init(function()
 	local Connection = nil
 	local Position = Config["Auto Plant"].Position
 	local Farm, Important = Module:GetFarm()
+
+	local LastTick = 0
+	local Delay = 0.1
 
 	Farming:Toggle({
 		Title = "Auto Plant",
@@ -253,26 +256,29 @@ Module:Init(function()
 				ConnectionInit:Disconnect(Connection)
 
 				Connection = ConnectionInit:Connect("Heartbeat", function()
+					local currentTime = tick()
+					if currentTime - LastTick < Delay then
+						return
+					end
+					LastTick = currentTime
+
 					if TargetPlants2 == "All" then
 						local Plants = Module:GetPlants(Farm)
-
 						for _, v in pairs(Plants) do
-							Module:Plant(v, PlantMethod)
+							Module:Plant(v.Name, PlantMethod)
 						end
-					elseif type(TargetPlants2) == "string" and not TargetPlants2 == "All" then
+					elseif type(TargetPlants2) == "string" and TargetPlants2 ~= "All" then
 						local Plants = Module:GetPlants(Farm)
-
 						for _, v in pairs(Plants) do
 							if v.Name == TargetPlants2 then
-								Module:Plant(v, PlantMethod)
+								Module:Plant(v.Name, PlantMethod)
 							end
 						end
 					elseif type(TargetPlants2) == "table" and #TargetPlants2 > 0 then
 						local Plants = Module:GetPlants(Farm)
-
 						for _, v in pairs(Plants) do
 							if table.find(TargetPlants2, v.Name) then
-								Module:Plant(v, PlantMethod)
+								Module:Plant(v.Name, PlantMethod)
 							end
 						end
 					end

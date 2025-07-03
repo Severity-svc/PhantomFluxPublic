@@ -19,4 +19,14 @@ function Handler:Loadstring(Url)
 	return Result
 end
 
+function Handler:IsSupported(Name)
+	local Directory = getgenv()
+
+	if Directory[Name] then
+		return true
+	end
+
+	return false
+end
+
 return Handler

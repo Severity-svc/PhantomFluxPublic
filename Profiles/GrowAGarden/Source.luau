@@ -24,8 +24,8 @@ local Window = Library:Init()
 
 --// Tabs
 local AboutUs = Library:CreateTab("About Us", "info")
-local Farming = Library:CreateTab("Farming", "plant")
-local Stock = Library:CreateTab("Stock", "money")
+local Farming = Library:CreateTab("Farming", "wheat")
+local Stock = Library:CreateTab("Stock", "store")
 local Player = Library:CreateTab("Player", "user")
 local Visual = Library:CreateTab("Visual", "eye")
 local Event = Library:CreateTab("Event", "calendar")
@@ -47,6 +47,28 @@ local Config = {
 		TargetPlants = "All",
 		Position = nil,
 		PlantMethod = "Random",
+	},
+
+	["Auto Selling"] = {
+		Enabled = false,
+		Delay = 10, --// Delay in seconds
+	},
+
+	["Visuals"] = {
+		Enabled = false,
+		ShowPlants = true,
+		ShowMutations = true,
+		ShowSeeds = true,
+	},
+
+	["Player"] = {
+		Enabled = false,
+		ShowBackpackItems = true,
+		ShowCharacterItems = true,
+	},
+
+	["Misc"] = {
+		Enabled = false,
 	},
 }
 
@@ -156,7 +178,7 @@ Module:Init(function()
 		Type = "Checkbox",
 		Default = false,
 		Callback = function(State)
-			if State then
+			if State == true then
 				Connection = ConnectionInit:Connect("Heartbeat", function()
 					local Farm, Important = Module:GetFarm()
 
@@ -209,7 +231,7 @@ end)
 
 --// Auto Plant
 local AutoPlant = Library:CreateSection(Farming, "Auto Plant")
-local PlantMethod = Config["Auto Plant"].PlantMethod
+local PlantMethod = Config["Auto Plant"].PlantMethod --// Possible value types: "Random", "UnderPlayer", "UnderMouse"
 local TargetPlants2 = Config["Auto Plant"].TargetPlants --// Possible value types: nil, string, table {nil - none, string - one selected, table - multiple selected}
 
 local PlantsToPlant = Library:CreateDropdown(Farming, {
@@ -235,7 +257,6 @@ local PlantMethods = Library:CreateDropdown(Farming, {
 })
 
 Module:Init(function()
-	print("got here")
 	local ConnectionInit = Module:SpawnConnection()
 	local Connection = nil
 
@@ -246,28 +267,18 @@ Module:Init(function()
 		Type = "Checkbox",
 		Default = false,
 		Callback = function(State)
-			if State then
-				local Seeds = Module:GetSeeds()
-
-				for _, v in pairs(Seeds) do
-					if v:IsA("Tool") then
-						local FruitName = v.Name:match("^(.-) Seed$")
-
-						if FruitName then
-							print(FruitName)
-						end
-					end
-				end
-
-				local Pos = Module:GetPosition(PlantMethod)
+			if State == true then
 				Connection = ConnectionInit:Connect("Heartbeat", function()
+					local Seeds = Module:GetSeeds()
+
 					if TargetPlants2 == "All" then
 						for _, v in pairs(Seeds) do
 							if v:IsA("Tool") then
-								local FruitName = v.Name:match("^(.-) Seed$")
+								local FruitName = v.Name:match("^(.-) Seed")
 
 								if FruitName then
 									Humanoid:EquipTool(v)
+									print(tostring(Module:GetPosition(PlantMethod)))
 									Module:Plant(Module:GetPosition(PlantMethod), FruitName)
 								end
 							end
@@ -275,7 +286,7 @@ Module:Init(function()
 					elseif type(TargetPlants2) == "string" and not TargetPlants2 == "All" then
 						for _, v in pairs(Seeds) do
 							if v:IsA("Tool") then
-								local FruitName = v.Name:match("^(.-) Seed$")
+								local FruitName = v.Name:match("^(.-) Seed")
 
 								if FruitName and FruitName == TargetPlants2 then
 									Humanoid:EquipTool(v)
@@ -286,7 +297,7 @@ Module:Init(function()
 					elseif type(TargetPlants2) == "table" and #TargetPlants2 > 0 then
 						for _, v in pairs(Seeds) do
 							if v:IsA("Tool") then
-								local FruitName = v.Name:match("^(.-) Seed$")
+								local FruitName = v.Name:match("^(.-) Seed")
 
 								if FruitName and table.find(TargetPlants2, FruitName) then
 									Humanoid:EquipTool(v)
@@ -297,8 +308,362 @@ Module:Init(function()
 					end
 				end)
 			else
+				if Connection then
+					ConnectionInit:Disconnect(Connection)
+					Connection = nil
+				end
+			end
+		end,
+	})
+end)
+
+--// Auto Selling
+local AutoSelling = Library:CreateSection(Farming, "Auto Selling")
+local Delay = Config["Auto Selling"].Delay --// Delay in seconds
+
+local DelaySlider = Library:CreateSlider(Farming, {
+	Title = "Sell Delay (Seconds)",
+	Desc = "Change Delay between each sell",
+	Step = 0.1,
+	Value = {
+		Min = 0.1,
+		Max = 100,
+		Default = 15,
+	},
+	Callback = function(Value)
+		Delay = Value
+	end,
+})
+
+Module:Init(function()
+	local ConnectionInit = Module:SpawnConnection()
+	local Connection = nil
+	local LastTick = 0
+
+	Farming:Toggle({
+		Title = "Auto Sell",
+		Desc = "Automatically Sell Your Plants",
+		Icon = "check",
+		Type = "Checkbox",
+		Default = false,
+		Callback = function(State)
+			if State == true then
 				ConnectionInit:Disconnect(Connection)
-				Connection = nil
+				Connection = ConnectionInit:Connect("Heartbeat", function()
+					local Current = tick()
+					if Current - LastTick < Delay then
+						return
+					end
+					LastTick = Current
+
+					local Character = LocalPlayer.Character
+					local HumanoidRootPart = Character and Character:FindFirstChild("HumanoidRootPart")
+
+					if not HumanoidRootPart then
+						return
+					end
+
+					local LastCFrame = HumanoidRootPart.CFrame
+					HumanoidRootPart.CFrame = CFrame.new(88.1068573, 2.99999976, 0.248745888)
+
+					task.wait(0.25)
+					game:GetService("ReplicatedStorage")
+						:WaitForChild("GameEvents")
+						:WaitForChild("Sell_Inventory")
+						:FireServer()
+
+					task.wait(1.25)
+
+					HumanoidRootPart.CFrame = LastCFrame
+				end)
+			else
+				if Connection then
+					ConnectionInit:Disconnect(Connection)
+					Connection = nil
+				end
+			end
+		end,
+	})
+end)
+
+local UISection = Library:CreateSection(Farming, "Proximity Prompts")
+
+Module:Init(function()
+	local ConnectionInit = Module:SpawnConnection()
+	local Connection = nil
+	local LastTick = 0
+	local Farm, Imp = Module:GetFarm()
+
+	Farming:Toggle({
+		Title = "Enable Multiple Proxys",
+		Desc = "Lets you harvest more plants at once",
+		Icon = "check",
+		Type = "Checkbox",
+		Default = false,
+		Callback = function(State)
+			if State == true then
+				ConnectionInit:Disconnect(Connection)
+				Connection = ConnectionInit:Connect("Heartbeat", function()
+					local Current = tick()
+					if Current - LastTick < Delay then
+						return
+					end
+					LastTick = Current
+
+					local Plants = Module:GetPlants(Imp)
+					for _, v in pairs(Plants) do
+						local Proxy = Module:GetProxy(v)
+
+						if Proxy then
+							Proxy.Exclusivity = Enum.ProximityPromptExclusivity.AlwaysShow
+						end
+					end
+				end)
+			else
+				if Connection then
+					local Plants = Module:GetPlants(Imp)
+					for _, v in pairs(Plants) do
+						local Proxy = Module:GetProxy(v)
+
+						if Proxy then
+							Proxy.Exclusivity = Enum.ProximityPromptExclusivity.OnePerButton
+						end
+					end
+
+					ConnectionInit:Disconnect(Connection)
+					Connection = nil
+				end
+			end
+		end,
+	})
+end)
+
+--// Stock
+local UISection = Library:CreateSection(Stock, "Enable Uis")
+
+Module:Init(function()
+	Stock:Toggle({
+		Title = "Enable Seeds UI",
+		Desc = "Show Seed Stock ui",
+		Icon = "check",
+		Type = "Checkbox",
+		Default = false,
+		Callback = function(State)
+			Util.LocalPlayer.PlayerGui.Seed_Shop.Enabled = State
+		end,
+	})
+end)
+
+Module:Init(function()
+	Stock:Toggle({
+		Title = "Enable Gear UI",
+		Desc = "Show Seed Stock ui",
+		Icon = "check",
+		Type = "Checkbox",
+		Default = false,
+		Callback = function(State)
+			Util.LocalPlayer.PlayerGui.Gear_Shop.Enabled = State
+		end,
+	})
+end)
+
+Module:Init(function()
+	Stock:Toggle({
+		Title = "Enable Event UI",
+		Desc = "Show Seed Stock ui",
+		Icon = "check",
+		Type = "Checkbox",
+		Default = false,
+		Callback = function(State)
+			Util.LocalPlayer.PlayerGui.EventShop_UI.Enabled = State
+		end,
+	})
+end)
+
+--// AutoBuy Stocks
+local AutoBuySec = Library:CreateSection(Stock, "Auto Buy Seeds")
+local TargetPlants3 = "Carrot"
+
+local PlantsToPlant = Library:CreateDropdown(Stock, {
+	Title = "Seeds to buy",
+	Values = NewHandler:SortArray(Util.SeedStock),
+	Value = { "Carrot" },
+	Multi = true,
+	AllowNone = true,
+	Callback = function(option)
+		TargetPlants3 = option
+	end,
+})
+
+Module:Init(function()
+	local ConnectionInit = Module:SpawnConnection()
+	local Connection = nil
+	local LastTick = 0
+	local Delay2 = 5
+
+	Stock:Toggle({
+		Title = "Auto Buy Seeds",
+		Desc = "Automatically Buys Seeds In Stock",
+		Icon = "check",
+		Type = "Checkbox",
+		Default = false,
+		Callback = function(State)
+			if State == true then
+				ConnectionInit:Disconnect(Connection)
+
+				Connection = ConnectionInit:Connect("Heartbeat", function()
+					local Current = tick()
+					if Current - LastTick < Delay2 then
+						return
+					end
+					LastTick = Current
+
+					if type(TargetPlants3) == "string" and TargetPlants3 == "All" then
+						for _, v in pairs(Util.SeedStock) do
+							Module:BuySeed(v)
+						end
+					elseif type(TargetPlants3) == "table" and #TargetPlants3 > 0 then
+						for _, v in pairs(TargetPlants3) do
+							Module:BuySeed(v)
+						end
+					end
+				end)
+			else
+				if Connection then
+					ConnectionInit:Disconnect(Connection)
+					Connection = nil
+				end
+			end
+		end,
+	})
+end)
+
+Module:Init(function()
+	local ConnectionInit = Module:SpawnConnection()
+	local Connection = nil
+	local LastTick = 0
+	local Delay2 = 5
+
+	Stock:Toggle({
+		Title = "Auto Buy All Seeds",
+		Desc = "Automatically Buys Seeds In Stock",
+		Icon = "check",
+		Type = "Checkbox",
+		Default = false,
+		Callback = function(State)
+			if State == true then
+				ConnectionInit:Disconnect(Connection)
+
+				Connection = ConnectionInit:Connect("Heartbeat", function()
+					local Current = tick()
+					if Current - LastTick < Delay2 then
+						return
+					end
+					LastTick = Current
+
+					for _, v in pairs(Util.SeedStock) do
+						Module:BuySeed(v)
+					end
+				end)
+			else
+				if Connection then
+					ConnectionInit:Disconnect(Connection)
+					Connection = nil
+				end
+			end
+		end,
+	})
+end)
+
+local AutoBuySec = Library:CreateSection(Stock, "Auto Buy Gear")
+local TargetGear = "Watering Can"
+
+local PlantsToPlant = Library:CreateDropdown(Stock, {
+	Title = "Seeds to buy",
+	Values = NewHandler:SortArray(Util.GearStock),
+	Value = { "Carrot" },
+	Multi = true,
+	AllowNone = true,
+	Callback = function(option)
+		TargetGear = option
+	end,
+})
+
+Module:Init(function()
+	local ConnectionInit = Module:SpawnConnection()
+	local Connection = nil
+	local LastTick = 0
+	local Delay2 = 5
+
+	Stock:Toggle({
+		Title = "Auto Buy Gear",
+		Desc = "Automatically Buys Seeds In Stock",
+		Icon = "check",
+		Type = "Checkbox",
+		Default = false,
+		Callback = function(State)
+			if State == true then
+				ConnectionInit:Disconnect(Connection)
+
+				Connection = ConnectionInit:Connect("Heartbeat", function()
+					local Current = tick()
+					if Current - LastTick < Delay2 then
+						return
+					end
+					LastTick = Current
+
+					if type(TargetGear) == "string" and TargetGear == "All" then
+						for _, v in pairs(Util.SeedStock) do
+							Module:BuyGear(v)
+						end
+					elseif type(TargetGear) == "table" and #TargetGear > 0 then
+						for _, v in pairs(TargetGear) do
+							Module:BuyGear(v)
+						end
+					end
+				end)
+			else
+				if Connection then
+					ConnectionInit:Disconnect(Connection)
+					Connection = nil
+				end
+			end
+		end,
+	})
+end)
+
+Module:Init(function()
+	local ConnectionInit = Module:SpawnConnection()
+	local Connection = nil
+	local LastTick = 0
+	local Delay2 = 5
+
+	Stock:Toggle({
+		Title = "Auto Buy All Gears",
+		Desc = "Automatically Buys Seeds In Stock",
+		Icon = "check",
+		Type = "Checkbox",
+		Default = false,
+		Callback = function(State)
+			if State == true then
+				ConnectionInit:Disconnect(Connection)
+
+				Connection = ConnectionInit:Connect("Heartbeat", function()
+					local Current = tick()
+					if Current - LastTick < Delay2 then
+						return
+					end
+					LastTick = Current
+
+					for _, v in pairs(Util.GearStock) do
+						Module:BuyGear(v)
+					end
+				end)
+			else
+				if Connection then
+					ConnectionInit:Disconnect(Connection)
+					Connection = nil
+				end
 			end
 		end,
 	})

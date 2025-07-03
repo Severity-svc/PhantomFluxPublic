@@ -214,4 +214,25 @@ function ModuleHandler:GetPosition(PlantMethod)
 	end
 end
 
+--// Stock modules
+function ModuleHandler:BuySeed(Name)
+	local args = {
+		Name,
+	}
+	game:GetService("ReplicatedStorage")
+		:WaitForChild("GameEvents")
+		:WaitForChild("BuySeedStock")
+		:FireServer(unpack(args))
+end
+
+function ModuleHandler:BuyGear(Name)
+	local args = {
+		Name,
+	}
+	game:GetService("ReplicatedStorage")
+		:WaitForChild("GameEvents")
+		:WaitForChild("BuyGearStock")
+		:FireServer(unpack(args))
+end
+
 return ModuleHandler

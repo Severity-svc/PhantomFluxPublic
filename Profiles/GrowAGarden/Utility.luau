@@ -88,6 +88,42 @@ local Util = {
 		"Cloudtouched",
 	},
 
+	SeedStock = {
+		"Carrot",
+		"Strawberry",
+		"Blueberry",
+		"Tomato",
+		"Cauliflower",
+		"Watermelon",
+		"Green Apple",
+		"Avocado",
+		"Banana",
+		"Pineapple",
+		"Kiwi",
+		"Bell Pepper",
+		"Prickly Pear",
+		"Loquat",
+		"Feijoa",
+		"Sugar Apple",
+	},
+
+	GearStock = {
+		"Watering Can",
+		"Trowel",
+		"Recall Wrench",
+		"Basic Sprinkler",
+		"Advanced Sprinkler",
+		"Godly Sprinkler",
+		"Master Sprinkler",
+		"Magnifying Glass",
+		"Tanning Mirror",
+		"Cleaning Spray",
+		"Favorite Tool",
+		"Harvest Tool",
+		"Friendship Tool",
+		"Lightning Rod",
+	},
+
 	Services = {
 		Players = game:GetService("Players"),
 		ReplicatedStorage = game:GetService("ReplicatedStorage"),
@@ -110,6 +146,23 @@ local Util = {
 
 	Remotes = {
 		PlantRE = game:GetService("ReplicatedStorage"):WaitForChild("GameEvents"):WaitForChild("Plant_RE"),
+	},
+
+	Positions = {
+		SellZone = CFrame.new(
+			88.1068573,
+			2.99999976,
+			0.248745888,
+			-0.0311789345,
+			1.51965054e-08,
+			-0.999513805,
+			-7.2054922e-09,
+			1,
+			1.54286646e-08,
+			0.999513805,
+			7.68303821e-09,
+			-0.0311789345
+		),
 	},
 }
 

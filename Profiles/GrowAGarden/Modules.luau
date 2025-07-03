@@ -67,6 +67,7 @@ function ModuleHandler:SpawnConnection()
 end
 
 --// Farming Modules
+
 function ModuleHandler:GetFarm()
 	local Farm = Workspace:FindFirstChild("Farm")
 
@@ -153,6 +154,19 @@ function ModuleHandler:HarvestPlant(Plant)
 end
 
 --// Auto Plant Modules
+
+function ModuleHandler:GetSeeds()
+	local Seeds = {}
+
+	local Backpack = Util.LocalPlayer.Backpack
+	for _, v in pairs(Backpack:GetChildren()) do
+		if v:IsA("Tool") and v.Name:lower():find("seed") then
+			table.insert(Seeds, v)
+		end
+	end
+
+	return Seeds
+end
 
 function ModuleHandler:GetRandomPosition(Farm)
 	local Area = Farm.PetArea.Size

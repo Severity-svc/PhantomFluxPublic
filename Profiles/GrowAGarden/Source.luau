@@ -263,20 +263,20 @@ Module:Init(function()
 					LastTick = currentTime
 
 					if TargetPlants2 == "All" then
-						local Plants = Module:GetPlants(Farm)
-						for _, v in pairs(Plants) do
+						local Seeds = Module:GetSeeds()
+						for _, v in pairs(Seeds) do
 							Module:Plant(v.Name, PlantMethod)
 						end
 					elseif type(TargetPlants2) == "string" and TargetPlants2 ~= "All" then
-						local Plants = Module:GetPlants(Farm)
-						for _, v in pairs(Plants) do
-							if v.Name == TargetPlants2 then
+						local Seeds = Module:GetSeeds()
+						for _, v in pairs(Seeds) do
+							if v.Name:lower():find(TargetPlants2:lower()) then
 								Module:Plant(v.Name, PlantMethod)
 							end
 						end
 					elseif type(TargetPlants2) == "table" and #TargetPlants2 > 0 then
-						local Plants = Module:GetPlants(Farm)
-						for _, v in pairs(Plants) do
+						local Seeds = Module:GetSeeds()
+						for _, v in pairs(Seeds) do
 							if table.find(TargetPlants2, v.Name) then
 								Module:Plant(v.Name, PlantMethod)
 							end

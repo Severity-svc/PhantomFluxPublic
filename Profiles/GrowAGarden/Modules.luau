@@ -18,14 +18,21 @@ local NewHandler = OldHandler:GetDirectory(
 
 if not NewHandler then
 	error("[Source] Failed to load Handler")
-	return
+	NewHandler = OldHandler
 end
 
-local Util = NewHandler:GetDirectory(
-	RunMode,
-	"Utility.luau",
-	"https://raw.githubusercontent.com/Severity-svc/PhantomFluxPublic/refs/heads/main/Profiles/GrowAGarden/Utility.luau"
-)
+local Util
+
+--// Loading Modules
+if RunMode == "Developer Mode" then
+	Util = NewHandler:GetDirectory(RunMode, "Utility.luau")
+elseif RunMode == "Public" then
+	Util = loadstring(
+		game:HttpGet(
+			"https://raw.githubusercontent.com/Severity-svc/PhantomFluxPublic/refs/heads/main/Profiles/GrowAGarden/Utility.luau"
+		)
+	)()
+end
 
 --// Variables
 local Workspace = Util.Services.Workspace

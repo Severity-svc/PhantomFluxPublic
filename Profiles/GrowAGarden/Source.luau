@@ -19,21 +19,34 @@ if not NewHandler then
 	NewHandler = OldHandler
 end
 
-local Util = NewHandler:GetDirectory(
-	RunMode,
-	"Utility.luau",
-	"https://raw.githubusercontent.com/Severity-svc/PhantomFluxPublic/refs/heads/main/Profiles/GrowAGarden/Utility.luau"
-)
-local Library = NewHandler:GetDirectory(
-	RunMode,
-	"Library.luau",
-	"https://raw.githubusercontent.com/Severity-svc/PhantomFluxPublic/refs/heads/main/Profiles/GrowAGarden/Library.luau"
-)
-local Module = NewHandler:GetDirectory(
-	RunMode,
-	"Modules.luau",
-	"https://raw.githubusercontent.com/Severity-svc/PhantomFluxPublic/refs/heads/main/Profiles/GrowAGarden/Module.luau"
-)
+local Util
+local Library
+local Module
+
+--// Loading Modules
+if RunMode == "Developer Mode" then
+	Util = NewHandler:GetDirectory(RunMode, "Utility.luau")
+	Library = NewHandler:GetDirectory(RunMode, "Library.luau")
+	Module = NewHandler:GetDirectory(RunMode, "Modules.luau")
+elseif RunMode == "Public" then
+	Util = loadstring(
+		game:HttpGet(
+			"https://raw.githubusercontent.com/Severity-svc/PhantomFluxPublic/refs/heads/main/Profiles/GrowAGarden/Utility.luau"
+		)
+	)()
+
+	Library = loadstring(
+		game:HttpGet(
+			"https://raw.githubusercontent.com/Severity-svc/PhantomFluxPublic/refs/heads/main/Profiles/GrowAGarden/Library.luau"
+		)
+	)()
+
+	Module = loadstring(
+		game:HttpGet(
+			"https://raw.githubusercontent.com/Severity-svc/PhantomFluxPublic/refs/heads/main/Profiles/GrowAGarden/Module.luau"
+		)
+	)()
+end
 
 --// Init Library
 local Window = Library:Init()

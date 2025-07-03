@@ -83,50 +83,24 @@ function ModuleHandler:GetFarm()
 	return nil, nil
 end
 
-function ModuleHandler:GetPlant(Name)
-	if type(Name) == "string" then
-		if Name == "All" then
-			local Farm, Important = self:GetFarm()
-			if not Farm or not Important then
-				return nil
-			end
+function ModuleHandler:GetPlants(Farm)
+	local Plants = {}
 
-			local PlantsPhysical = Important:FindFirstChild("Plants_Physical")
-
-			for _, v in pairs(PlantsPhysical:GetChildren()) do
-				if v:IsA("Model") then
-					return v
+	for _, v in pairs(Farm:GetDescendants()) do
+		if v:IsA("Model") and v:FindFirstChild("Grow") then
+			if v:FindFirstChild("Fruits") then
+				for _, v in pairs(v.Fruits:GetChildren()) do
+					if v:IsA("Model") and v:FindFirstChild("Grow") then
+						table.insert(Plants, v)
+					end
 				end
-			end
-		else
-			local Farm, Important = self:GetFarm()
-			if not Farm or not Important then
-				return nil
-			end
-
-			local PlantsPhysical = Important:FindFirstChild("Plants_Physical")
-
-			for _, v in pairs(PlantsPhysical:GetChildren()) do
-				if v:IsA("Model") and v.Name == Name then
-					return v
-				end
+			else
+				table.insert(Plants, v)
 			end
 		end
-	elseif type(Name) == "table" then
-		local Plants = {}
-		for _, v in pairs(Name) do
-			local Plant = self:GetPlant(v)
-
-			if Plant then
-				table.insert(Plants, Plant)
-			end
-		end
-		return Plants
-	else
-		error("[ModuleHandler:GetPlant] Name must be a string or a table of strings")
 	end
 
-	return nil
+	return Plants
 end
 
 function ModuleHandler:GetProxy(Plant)
@@ -164,6 +138,20 @@ function ModuleHandler:HasMutation(Plant, Mutation)
 	end
 
 	return false
+end
+
+function ModuleHandler:HarvestPlant(Plant)
+	local Proxy = self:GetProxy(Plant)
+	if not Proxy then
+		warn("[ModuleHandler:HarvestPlant] No proxy found for plant: " .. Plant.Name)
+		return
+	end
+
+	if Proxy.Enabled then
+		fireproximityprompt(Proxy)
+	else
+		warn("[ModuleHandler:HarvestPlant] Proxy is not enabled for plant: " .. Plant.Name)
+	end
 end
 
 return ModuleHandler

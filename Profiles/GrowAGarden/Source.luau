@@ -104,8 +104,8 @@ AboutUs:Button({
 
 --// Farming, Auto Harvest
 local AutoHarvest = Library:CreateSection(Farming, "Auto Harvest")
-local TargetPlants = nil --// Possible value types: nil, string, table {nil - none, string - one selected, table - multiple selected}
-local TargetMutations = nil --// Possible value types: nil, string, table {nil - none, string - one selected, table - multiple selected}
+local TargetPlants = "All" --// Possible value types: nil, string, table {nil - none, string - one selected, table - multiple selected}
+local TargetMutations = "All" --// Possible value types: nil, string, table {nil - none, string - one selected, table - multiple selected}
 
 local PlantsToHarvest = Library:CreateDropdown(Farming, {
 	Title = "Plants to Harvest",
@@ -145,45 +145,41 @@ Module:Init(function()
 
 				Connection = ConnectionInit:Connect("Heartbeat", function()
 					local Farm, Important = Module:GetFarm()
+
 					if not Farm or not Important then
-						warn("[AutoHarvest] Failed to find Farm or Important folder")
+						warn("[AutoHarvest] Farm not found")
 						return
 					end
 
-					if not TargetPlants or not TargetMutations then
-						warn("[AutoHarvest] No plants or mutations selected")
-						return
-					end
-
-					local Plants = Module:GetPlant(TargetPlants)
-					if not Plants then
-						warn("[AutoHarvest] No plants found for selected filters")
-						return
-					end
-
-					if type(Plants) ~= "table" then
-						Plants = { Plants }
-					end
+					local Plants = Module:GetPlants(Farm)
 
 					for _, v in pairs(Plants) do
-						if TargetMutations[1] == "All" or Module:HasMutation(v, TargetMutations) then
-							local FruitsFolder = v:FindFirstChild("Fruits")
-							if FruitsFolder then
-								for _, Fruit in pairs(FruitsFolder:GetChildren()) do
-									if Fruit:IsA("Model") then
-										local IsReady = Fruit:FindFirstChild("IsReady")
-										if (IsReady and IsReady.Value) or not IsReady then
-											local Proxy = Module:GetProxy(Fruit)
-											if Proxy then
-												fireproximityprompt(Proxy)
-											end
-										end
+						if TargetPlants == "All" then
+							if TargetMutations == "All" then
+								Module:HarvestPlant(v)
+							else
+								if Module:HasMutations(v, TargetMutations) then
+									Module:HarvestPlant(v)
+								end
+							end
+						elseif type(TargetPlants) == "string" and not TargetPlants == "All" then
+							if v.Name == TargetPlants then
+								if TargetMutations == "All" then
+									Module:HarvestPlant(v)
+								else
+									if Module:HasMutations(v, TargetMutations) then
+										Module:HarvestPlant(v)
 									end
 								end
-							else
-								local Proxy = Module:GetProxy(v)
-								if Proxy then
-									fireproximityprompt(Proxy)
+							end
+						elseif type(TargetPlants) == "table" and #TargetPlants > 0 then
+							if table.find(TargetPlants, v.Name) then
+								if TargetMutations == "All" then
+									Module:HarvestPlant(v)
+								else
+									if Module:HasMutations(v, TargetMutations) then
+										Module:HarvestPlant(v)
+									end
 								end
 							end
 						end

@@ -13,7 +13,7 @@ local OldHandler = loadstring(
 local NewHandler = OldHandler:GetDirectory(
 	RunMode,
 	"Handler.luau",
-	"https://raw.githubusercontent.com/Severity-svc/PhantomFluxPublic/main/Profiles/GrowAGarden/Handler.luau"
+	"https://raw.githubusercontent.com/Severity-svc/PhantomFluxPublic/refs/heads/main/Profiles/GrowAGarden/Handler.luau"
 ) --// If the runmode is "Public" then the newhandler will be the same as the oldhandler.
 
 if not NewHandler then
@@ -24,7 +24,7 @@ end
 local Util = NewHandler:GetDirectory(
 	RunMode,
 	"Utility.luau",
-	"https://raw.githubusercontent.com/Severity-svc/PhantomFluxPublic/main/Profiles/GrowAGarden/Utility.luau"
+	"https://raw.githubusercontent.com/Severity-svc/PhantomFluxPublic/refs/heads/main/Profiles/GrowAGarden/Utility.luau"
 )
 
 --// Variables

@@ -35,7 +35,7 @@ function ModuleHandler:Init(Function)
 		return
 	end
 
-	Function()
+	coroutine.wrap(Function)()
 end
 
 function ModuleHandler:SpawnConnection()

@@ -157,8 +157,6 @@ Module:Init(function()
 		Default = false,
 		Callback = function(State)
 			if State then
-				ConnectionInit:Disconnect(Connection)
-
 				Connection = ConnectionInit:Connect("Heartbeat", function()
 					local Farm, Important = Module:GetFarm()
 
@@ -237,10 +235,9 @@ local PlantMethods = Library:CreateDropdown(Farming, {
 })
 
 Module:Init(function()
+	print("got here")
 	local ConnectionInit = Module:SpawnConnection()
 	local Connection = nil
-	local Position = Config["Auto Plant"].Position
-	local Farm, Important = Module:GetFarm()
 
 	Farming:Toggle({
 		Title = "Auto Plant",
@@ -250,16 +247,27 @@ Module:Init(function()
 		Default = false,
 		Callback = function(State)
 			if State then
-				ConnectionInit:Disconnect(Connection)
+				local Seeds = Module:GetSeeds()
 
+				for _, v in pairs(Seeds) do
+					if v:IsA("Tool") then
+						local FruitName = v.Name:match("^(.-) Seed$")
+
+						if FruitName then
+							print(FruitName)
+						end
+					end
+				end
+
+				local Pos = Module:GetPosition(PlantMethod)
 				Connection = ConnectionInit:Connect("Heartbeat", function()
-					local Seeds = Module:GetSeeds()
 					if TargetPlants2 == "All" then
 						for _, v in pairs(Seeds) do
 							if v:IsA("Tool") then
 								local FruitName = v.Name:match("^(.-) Seed$")
 
 								if FruitName then
+									Humanoid:EquipTool(v)
 									Module:Plant(Module:GetPosition(PlantMethod), FruitName)
 								end
 							end
@@ -270,6 +278,7 @@ Module:Init(function()
 								local FruitName = v.Name:match("^(.-) Seed$")
 
 								if FruitName and FruitName == TargetPlants2 then
+									Humanoid:EquipTool(v)
 									Module:Plant(Module:GetPosition(PlantMethod), FruitName)
 								end
 							end
@@ -280,6 +289,7 @@ Module:Init(function()
 								local FruitName = v.Name:match("^(.-) Seed$")
 
 								if FruitName and table.find(TargetPlants2, FruitName) then
+									Humanoid:EquipTool(v)
 									Module:Plant(Module:GetPosition(PlantMethod), FruitName)
 								end
 							end

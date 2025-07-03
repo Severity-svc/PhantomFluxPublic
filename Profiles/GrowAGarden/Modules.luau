@@ -154,94 +154,60 @@ function ModuleHandler:HarvestPlant(Plant)
 end
 
 --// Auto Plant Modules
+function ModuleHandler:Plant(Position, Name)
+	local args = {
+		Position,
+		Name, --// Eg: Avocado, Tomato, etc.
+	}
+	game:GetService("ReplicatedStorage"):WaitForChild("GameEvents"):WaitForChild("Plant_RE"):FireServer(unpack(args))
+end
+
+function ModuleHandler:GetRandomPosition(Part)
+	local Area = Part.Size
+
+	local X = (math.random() - 0.5) * Area.X
+	local Y = (math.random() - 0.5) * Area.Y
+	local Z = (math.random() - 0.5) * Area.Z
+
+	return Part.Position + Vector3.new(X, Y, Z)
+end
+
+function ModuleHandler:GetPosition(Method)
+	if Method == "Random" then
+		return self:GetRandomPosition(self:GetFarm().PetArea)
+	elseif Method == "UnderPlayer" then
+		local Character = Util.LocalPlayer.Character
+		if Character and Character:FindFirstChild("HumanoidRootPart") then
+			return Character.HumanoidRootPart.Position
+		else
+			return nil
+		end
+	elseif Method == "UnderMouse" then
+		local Mouse = Util.LocalPlayer.Mouse
+		if Mouse and Mouse.Target then
+			return Mouse.Hit.p
+		end
+	else
+		error("[ModuleHandler:GetPosition] Invalid Method: " .. tostring(Method))
+		return nil
+	end
+end
 
 function ModuleHandler:GetSeeds()
 	local Seeds = {}
+	local Tool = nil
 
-	local Backpack = Util.LocalPlayer.Backpack
 	for _, v in pairs(Backpack:GetChildren()) do
-		if v:IsA("Tool") and v.Name:lower():find("seed") then
-			table.insert(Seeds, v)
-		end
-	end
-
-	return Seeds
-end
-
-function ModuleHandler:GetRandomPosition(Farm)
-	local Area = Farm.PetArea.Size
-
-	local X = (math.random() - 0.5) * (Area.X - 5)
-	local Y = (math.random() - 0.5) * (Area.Y - 5)
-	local Z = (math.random() - 0.5) * (Area.Z - 5)
-
-	local Vector = Vector3.new(X, Y, Z)
-	local WorldPoint = Farm.PetArea.CFrame:PointToWorldSpace(Vector)
-
-	return WorldPoint
-end
-
-function ModuleHandler:GetSeed(SeedName, ShouldEquip)
-	if not SeedName then
-		error("[ModuleHandler] SeedName not found")
-		return
-	end
-
-	local Backpack = Util.LocalPlayer.Backpack
-	for _, v in pairs(Backpack:GetChildren()) do
-		if v:IsA("Tool") and v.Name:lower():find(SeedName:lower()) and v.Name:find("Seed") then
-			if ShouldEquip then
-				Util.LocalPlayer.Humanoid:EquipTool(v)
+		if v:IsA("Tool") and v:FindFirstChild("Seed") then
+			local Name = v.Name:match("^(.-) Seed$")
+			if Name then
+				table.insert(Seeds, Name)
+				Tool = v
 			end
-
-			return v
 		end
 	end
-end
 
-function ModuleHandler:Plant(Plant, Method)
-	if not Plant or not Method then
-		error("[ModuleHandler] Plant and Method must be provided")
-		return
-	end
-
-	local PlantRE = Util.Remotes.PlantRE
-
-	local HasPlant = self:GetSeed(Plant, true)
-	if not HasPlant then
-		return
-	end
-
-	if Method == "Random" then
-		local Farm = self:GetFarm()
-		if not Farm then
-			warn("[ModuleHandler:Plant] Farm not found")
-			return
-		end
-
-		local Position = self:GetRandomPosition(Farm)
-		if not Position then
-			warn("[ModuleHandler:Plant] Failed to get random position")
-			return
-		end
-
-		PlantRE:FireServer(Position, Plant)
-	elseif Method == "UnderPlayer" then
-		local Character = Util.LocalPlayer.Character
-		local HRP = Character:WaitForChild("HumanoidRootPart")
-		local Position = HRP.Position
-		PlantRE:FireServer(Position, Plant)
-	elseif Method == "UnderMouse" then
-		local Mouse = Util.LocalPlayer:GetMouse()
-		if Mouse and Mouse.Hit then
-			local Position = Mouse.Hit.Position
-			PlantRE:FireServer(Position, Plant)
-		else
-			warn("[ModuleHandler:Plant] Mouse hit not found")
-		end
-	else
-		warn("[ModuleHandler:Plant] Invalid method: " .. tostring(Method))
-	end
+	return Seeds, Tool
 end
 
 return ModuleHandler

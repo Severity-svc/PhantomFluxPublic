@@ -262,11 +262,31 @@ Module:Init(function()
 					end
 					LastTick = currentTime
 
-					local Seeds = Module:GetSeeds()
+					local Seeds, Tool = Module:GetSeeds()
+					local Position = Module:GetPosition(PlantMethod)
 
-					if TargetPlants2 == "All" then
-						for _, v in pairs(Seeds) do
-							Module:Plant(v.Name, PlantMethod)
+					if Seeds and Tool and Position then
+						if TargetPlants2 == "All" then
+							for _, v in pairs(Seeds) do
+								if v and Tool then
+									Humanoid:EquipTool(Tool)
+									Module:Plant(Position, v)
+								end
+							end
+						elseif type(TargetPlants2) == "string" and not TargetPlants2 == "All" then
+							for _, v in pairs(Seeds) do
+								if v == TargetPlants2 and Tool then
+									Humanoid:EquipTool(Tool)
+									Module:Plant(Position, v)
+								end
+							end
+						elseif type(TargetPlants2) == "table" and #TargetPlants2 > 0 then
+							for _, v in pairs(Seeds) do
+								if table.find(TargetPlants2, v.Name) and Tool then
+									Humanoid:EquipTool(Tool)
+									Module:Plant(Position, v)
+								end
+							end
 						end
 					end
 				end)

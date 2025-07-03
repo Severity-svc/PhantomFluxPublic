@@ -43,10 +43,11 @@ function Handler:GetDirectory(RunMode, FileName, URL)
 		if URL then
 			return self:Loadstring(URL)
 		else
-			local URLPath = "https://raw.githubusercontent.com/Severity-svc/PhantomFlux/refs/heads/main/Profiles/"
+			local URLPath = "https://raw.githubusercontent.com/Severity-svc/PhantomFlux/main/Profiles/"
 				.. self.Name
 				.. "/"
 				.. FileName
+
 			return self:Loadstring(URLPath)
 		end
 	else

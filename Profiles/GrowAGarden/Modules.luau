@@ -169,6 +169,14 @@ function ModuleHandler:GetSeeds()
 	for _, v in pairs(Backpack:GetChildren()) do
 		if v:IsA("Tool") and v.Name:find("Seed") then
 			table.insert(Seeds, v)
+			return Seeds
+		end
+	end
+
+	for _, v in pairs(LocalPlayer.Character:GetChildren()) do
+		if v:IsA("Tool") and v.Name:find("Seed") then
+			table.insert(Seeds, v)
+			return Seeds
 		end
 	end
 

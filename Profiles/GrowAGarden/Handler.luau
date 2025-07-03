@@ -26,14 +26,9 @@ function Handler:GetDirectory(RunMode, FileName, URL)
 		end
 	elseif RunMode == "Public" then
 		if URL then
-			return loadstring(game:HttpGet(Url))()
+			return loadstring(game:HttpGet(URL))()
 		else
-			local Path = "https://raw.githubusercontent.com/Severity-svc/PhantomFluxPublic/refs/heads/main/Profiles/GrowAGarden/"
-				.. FileName
-
-			if Path then
-				return loadstring(game:HttpGet(Path))()
-			end
+			warn("[GetDirectory]: No url found")
 		end
 	else
 		error("[Handler]: Invalid RunMode")

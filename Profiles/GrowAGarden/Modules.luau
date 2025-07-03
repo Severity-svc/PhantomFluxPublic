@@ -207,15 +207,15 @@ function ModuleHandler:Plant(Plant, Method)
 			return
 		end
 
-		PlantRE:FireServer(Plant, Position)
+		PlantRE:FireServer(Position, Plant)
 	elseif Method == "UnderPlayer" then
 		local Position = Util.LocalPlayer.HumanoidRootPart.Position
-		PlantRE:FireServer(Plant, Position)
+		PlantRE:FireServer(Position, Plant)
 	elseif Method == "UnderMouse" then
 		local Mouse = Util.LocalPlayer.Mouse
 		if Mouse and Mouse.Hit then
 			local Position = Mouse.Hit.p
-			PlantRE:FireServer(Plant, Position)
+			PlantRE:FireServer(Position, Plant)
 		else
 			warn("[ModuleHandler:Plant] Mouse hit not found")
 		end

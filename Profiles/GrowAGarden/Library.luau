@@ -3,7 +3,7 @@
 local Library = {}
 Library.__index = Library
 
-local RunMode = "Developer Mode"
+local RunMode = "Public"
 
 local WindUI = loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/latest/download/main.lua"))()
 local ExistingWindow = nil
@@ -21,7 +21,7 @@ function Library:Init()
 			IconThemed = true,
 			Author = "severitysvc",
 			Folder = "PhantomFlux",
-			Size = UDim2.fromOffset(580, 460),
+			Size = UDim2.fromOffset(620, 480),
 			Transparent = true,
 			Theme = "Dark",
 			User = {

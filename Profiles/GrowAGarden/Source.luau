@@ -1,5 +1,5 @@
 --// RunMode: This is for adding updates to the source, make sure to change it to "Public" when you are done.
-local RunMode = "Developer Mode"
+local RunMode = "Public"
 
 --// Loading Modules
 local OldHandler = loadstring(

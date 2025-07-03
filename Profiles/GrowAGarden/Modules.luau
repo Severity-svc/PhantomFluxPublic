@@ -162,6 +162,26 @@ function ModuleHandler:Plant(Position, Name)
 	game:GetService("ReplicatedStorage"):WaitForChild("GameEvents"):WaitForChild("Plant_RE"):FireServer(unpack(args))
 end
 
+function ModuleHandler:EquipTool(Name, OnlySeeds)
+	local Backpack = Util.LocalPlayer.Backpack
+
+	for _, v in pairs(Backpack:GetChildren()) do
+		if v:IsA("Tool") and v.Name:find(Name) then
+			if OnlySeeds then
+				if v.Name:find("Seed") then
+					Util.LocalPlayer.Character.Humanoid:EquipTool(v)
+					return v
+				end
+			else
+				if v.Name == Name or v.Name:find(Name) then
+					Util.LocalPlayer.Character.Humanoid:EquipTool(v)
+					return v
+				end
+			end
+		end
+	end
+end
+
 function ModuleHandler:GetRandomPosition(Part)
 	local Area = Part.Size
 
@@ -195,19 +215,14 @@ end
 
 function ModuleHandler:GetSeeds()
 	local Seeds = {}
-	local Tool = nil
 
 	for _, v in pairs(Backpack:GetChildren()) do
 		if v:IsA("Tool") and v:FindFirstChild("Seed") then
-			local Name = v.Name:match("^(.-) Seed$")
-			if Name then
-				table.insert(Seeds, Name)
-				Tool = v
-			end
+			table.insert(Seeds, v)
 		end
 	end
 
-	return Seeds, Tool
+	return Seeds
 end
 
 return ModuleHandler

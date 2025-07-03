@@ -43,7 +43,7 @@ elseif RunMode == "Public" then
 
 	Module = loadstring(
 		game:HttpGet(
-			"https://raw.githubusercontent.com/Severity-svc/PhantomFluxPublic/refs/heads/main/Profiles/GrowAGarden/Module.luau"
+			"https://raw.githubusercontent.com/Severity-svc/PhantomFluxPublic/refs/heads/main/Profiles/GrowAGarden/Modules.luau"
 		)
 	)()
 end

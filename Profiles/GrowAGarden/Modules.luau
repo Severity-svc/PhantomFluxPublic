@@ -182,7 +182,7 @@ function ModuleHandler:GetRandomPosition(Farm)
 end
 
 function ModuleHandler:GetSeed(SeedName, ShouldEquip)
-	if not SeedName or type(SeedName) ~= "string" then
+	if not SeedName then
 		error("[ModuleHandler] SeedName not found")
 		return
 	end
@@ -209,7 +209,6 @@ function ModuleHandler:Plant(Plant, Method)
 
 	local HasPlant = self:GetSeed(Plant, true)
 	if not HasPlant then
-		warn("[ModuleHandler:Plant] Seed not found in backpack")
 		return
 	end
 
@@ -228,7 +227,7 @@ function ModuleHandler:Plant(Plant, Method)
 
 		PlantRE:FireServer(Position, Plant)
 	elseif Method == "UnderPlayer" then
-		local Character = Util.LocalPlayer.Character or Util.LocalPlayer.CharacterAdded:Wait()
+		local Character = Util.LocalPlayer.Character
 		local HRP = Character:WaitForChild("HumanoidRootPart")
 		local Position = HRP.Position
 		PlantRE:FireServer(Position, Plant)

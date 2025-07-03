@@ -33,8 +33,24 @@ local Misc = Library:CreateTab("Misc", "ellipsis")
 
 local Other = Library:AddConfigSection()
 
+--// Config
+
+local Config = {
+	["Auto Harvest"] = {
+		Enabled = false,
+		TargetPlants = "All",
+		TargetMutations = "All",
+	},
+
+	["Auto Plant"] = {
+		Enabled = false,
+		TargetPlants = "All",
+		Position = nil,
+		PlantMethod = "Random",
+	},
+}
+
 --// Utility
-local Config = Util.Config
 local Services = Util.Services
 local LocalPlayer = Util.LocalPlayer.Player
 local Character = Util.LocalPlayer.Character
@@ -104,8 +120,8 @@ AboutUs:Button({
 
 --// Farming, Auto Harvest
 local AutoHarvest = Library:CreateSection(Farming, "Auto Harvest")
-local TargetPlants = "All" --// Possible value types: nil, string, table {nil - none, string - one selected, table - multiple selected}
-local TargetMutations = "All" --// Possible value types: nil, string, table {nil - none, string - one selected, table - multiple selected}
+local TargetPlants = Config["Auto Harvest"].TargetPlants --// Possible value types: nil, string, table {nil - none, string - one selected, table - multiple selected}
+local TargetMutations = Config["Auto Harvest"].TargetMutations --// Possible value types: nil, string, table {nil - none, string - one selected, table - multiple selected}
 
 local PlantsToHarvest = Library:CreateDropdown(Farming, {
 	Title = "Plants to Harvest",
@@ -115,8 +131,6 @@ local PlantsToHarvest = Library:CreateDropdown(Farming, {
 	AllowNone = true,
 	Callback = function(option)
 		TargetPlants = option
-
-		print(type(option), option)
 	end,
 })
 
@@ -160,7 +174,7 @@ Module:Init(function()
 							if TargetMutations == "All" then
 								Module:HarvestPlant(v)
 							else
-								if Module:HasMutations(v, TargetMutations) then
+								if Module:HasMutation(v, TargetMutations) then
 									Module:HarvestPlant(v)
 								end
 							end
@@ -169,7 +183,7 @@ Module:Init(function()
 								if TargetMutations == "All" then
 									Module:HarvestPlant(v)
 								else
-									if Module:HasMutations(v, TargetMutations) then
+									if Module:HasMutation(v, TargetMutations) then
 										Module:HarvestPlant(v)
 									end
 								end
@@ -179,10 +193,86 @@ Module:Init(function()
 								if TargetMutations == "All" then
 									Module:HarvestPlant(v)
 								else
-									if Module:HasMutations(v, TargetMutations) then
+									if Module:HasMutation(v, TargetMutations) then
 										Module:HarvestPlant(v)
 									end
 								end
+							end
+						end
+					end
+				end)
+			else
+				ConnectionInit:Disconnect(Connection)
+				Connection = nil
+			end
+		end,
+	})
+end)
+
+--// Auto Plant
+local AutoPlant = Library:CreateSection(Farming, "Auto Plant")
+local PlantMethod = Config["Auto Plant"].PlantMethod
+local TargetPlants2 = Config["Auto Plant"].TargetPlants --// Possible value types: nil, string, table {nil - none, string - one selected, table - multiple selected}
+
+local PlantsToPlant = Library:CreateDropdown(Farming, {
+	Title = "Plants to Plant",
+	Values = NewHandler:SortArray(Util.Fruits),
+	Value = { "All" },
+	Multi = true,
+	AllowNone = true,
+	Callback = function(option)
+		TargetPlants2 = option
+	end,
+})
+
+local PlantMethods = Library:CreateDropdown(Farming, {
+	Title = "Plant Method",
+	Values = { "Random", "UnderPlayer", "UnderMouse" },
+	Value = "Random",
+	Multi = false,
+	AllowNone = true,
+	Callback = function(option)
+		--PlantMethod = option
+	end,
+})
+
+Module:Init(function()
+	local ConnectionInit = Module:SpawnConnection()
+	local Connection = nil
+	local Position = Config["Auto Plant"].Position
+	local Farm, Important = Module:GetFarm()
+
+	Farming:Toggle({
+		Title = "Auto Plant",
+		Desc = "Automatically Plant Stuff Based On Your Farm",
+		Icon = "check",
+		Type = "Checkbox",
+		Default = false,
+		Callback = function(State)
+			if State then
+				ConnectionInit:Disconnect(Connection)
+
+				Connection = ConnectionInit:Connect("Heartbeat", function()
+					if TargetPlants2 == "All" then
+						local Plants = Module:GetPlants(Farm)
+
+						for _, v in pairs(Plants) do
+							Module:Plant(v, PlantMethod)
+						end
+					elseif type(TargetPlants2) == "string" and not TargetPlants2 == "All" then
+						local Plants = Module:GetPlants(Farm)
+
+						for _, v in pairs(Plants) do
+							if v.Name == TargetPlants2 then
+								Module:Plant(v, PlantMethod)
+							end
+						end
+					elseif type(TargetPlants2) == "table" and #TargetPlants2 > 0 then
+						local Plants = Module:GetPlants(Farm)
+
+						for _, v in pairs(Plants) do
+							if table.find(TargetPlants2, v.Name) then
+								Module:Plant(v, PlantMethod)
 							end
 						end
 					end

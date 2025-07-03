@@ -107,6 +107,10 @@ local Util = {
 
 		Mouse = game.Players.LocalPlayer:GetMouse(),
 	},
+
+	Remotes = {
+		PlantRE = game:GetService("ReplicatedStorage"):WaitForChild("GameEvents"):WaitForChild("Plant_RE"),
+	},
 }
 
 return Util

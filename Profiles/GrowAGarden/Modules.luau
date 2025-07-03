@@ -152,4 +152,76 @@ function ModuleHandler:HarvestPlant(Plant)
 	end
 end
 
+--// Auto Plant Modules
+
+function ModuleHandler:GetRandomPosition(Farm)
+	local Area = Farm.PetArea.Size
+
+	local X = (math.random() - 0.5) * (Area.X - 5)
+	local Y = (math.random() - 0.5) * (Area.Y - 5)
+	local Z = (math.random() - 0.5) * (Area.Z - 5)
+
+	local Vector = Vector3.new(X, Y, Z)
+	local WorldPoint = Farm.PetArea.CFrame:PointToWorldSpace(Vector)
+
+	return WorldPoint
+end
+
+function ModuleHandler:GetSeed(SeedName, ShouldEquip)
+	if not SeedName or type(SeedName) ~= "string" then
+		error("[ModuleHandler] SeedName not found")
+		return
+	end
+
+	local Backpack = Util.LocalPlayer.Backpack
+	for _, v in pairs(Backpack:GetChildren()) do
+		if v:IsA("Tool") and v.Name:lower():find(SeedName:lower()) and v.Name:find("Seed") then
+			if ShouldEquip then
+				Util.LocalPlayer.Humanoid:EquipTool(v)
+			end
+
+			return v
+		end
+	end
+end
+
+function ModuleHandler:Plant(Plant, Method)
+	if not Plant or not Method then
+		error("[ModuleHandler] Plant and Position must be provided")
+		return
+	end
+
+	local PlantRE = Util.Remotes.PlantRE
+
+	local HasPlant, Equip = self:GetSeed(Plant, true)
+	if Method == "Random" then
+		local Farm = self:GetFarm()
+		if not Farm then
+			warn("[ModuleHandler:Plant] Farm not found")
+			return
+		end
+
+		local Position = self:GetRandomPosition(Farm)
+		if not Position then
+			warn("[ModuleHandler:Plant] Failed to get random position")
+			return
+		end
+
+		PlantRE:FireServer(Plant, Position)
+	elseif Method == "UnderPlayer" then
+		local Position = Util.LocalPlayer.HumanoidRootPart.Position
+		PlantRE:FireServer(Plant, Position)
+	elseif Method == "UnderMouse" then
+		local Mouse = Util.LocalPlayer.Mouse
+		if Mouse and Mouse.Hit then
+			local Position = Mouse.Hit.p
+			PlantRE:FireServer(Plant, Position)
+		else
+			warn("[ModuleHandler:Plant] Mouse hit not found")
+		end
+	else
+		warn("[ModuleHandler:Plant] Invalid method: " .. tostring(Method))
+	end
+end
+
 return ModuleHandler

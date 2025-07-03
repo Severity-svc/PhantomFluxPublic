@@ -12,12 +12,24 @@ local NewHandler = OldHandler:GetDirectory(RunMode, "Handler.luau") --// If the 
 
 if not NewHandler then
 	error("[Source] Failed to load Handler")
-	return
+	NewHandler = OldHandler
 end
 
-local Util = NewHandler:GetDirectory(RunMode, "Utility.luau")
-local Library = NewHandler:GetDirectory(RunMode, "Library.luau")
-local Module = NewHandler:GetDirectory(RunMode, "Modules.luau")
+local Util = NewHandler:GetDirectory(
+	RunMode,
+	"Utility.luau",
+	"https://raw.githubusercontent.com/Severity-svc/PhantomFluxPublic/refs/heads/main/Profiles/GrowAGarden/Handler.luau"
+)
+local Library = NewHandler:GetDirectory(
+	RunMode,
+	"Library.luau",
+	"https://raw.githubusercontent.com/Severity-svc/PhantomFluxPublic/refs/heads/main/Profiles/GrowAGarden/Library.luau"
+)
+local Module = NewHandler:GetDirectory(
+	RunMode,
+	"Modules.luau",
+	"https://raw.githubusercontent.com/Severity-svc/PhantomFluxPublic/refs/heads/main/Profiles/GrowAGarden/Module.luau"
+)
 
 --// Init Library
 local Window = Library:Init()

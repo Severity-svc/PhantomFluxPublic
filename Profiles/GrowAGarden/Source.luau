@@ -200,7 +200,7 @@ Module:Init(function()
 	local ConnectionInit = Module:SpawnConnection()
 	local Connection = nil
 	local LastTick = 0
-	local Delay = 0.01
+	local Delay = 1
 
 	Farming:Toggle({
 		Title = "AutoHarvest",
@@ -694,6 +694,41 @@ Module:Init(function()
 					for _, v in pairs(Util.GearStock) do
 						Module:BuyGear(v)
 					end
+				end)
+			else
+				if Connection then
+					ConnectionInit:Disconnect(Connection)
+					Connection = nil
+				end
+			end
+		end,
+	})
+end)
+
+--// Event
+
+Module:Init(function()
+	local ConnectionInit = Module:SpawnConnection()
+	local Connection = nil
+	local LastTick = 0
+	local Delay2 = 5
+
+	Event:Toggle({
+		Title = "Auto Summer Harvest",
+		Desc = "Automatically Put Fruits In The Summer Harvest",
+		Icon = "check",
+		Type = "Checkbox",
+		Default = false,
+		Callback = function(State)
+			if State == true then
+				ConnectionInit:Disconnect(Connection)
+
+				Connection = ConnectionInit:Connect("Heartbeat", function()
+					local Current = tick()
+					if Current - LastTick < Delay2 then
+						return
+					end
+					LastTick = Current
 				end)
 			else
 				if Connection then

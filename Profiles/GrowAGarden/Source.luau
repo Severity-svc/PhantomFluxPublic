@@ -8,7 +8,11 @@ local OldHandler = loadstring(
 	)
 )()
 
-local NewHandler = OldHandler:GetDirectory(RunMode, "Handler.luau") --// If the runmode is "Public" then the newhandler will be the same as the oldhandler.
+local NewHandler = OldHandler:GetDirectory(
+	RunMode,
+	"Handler.luau",
+	"https://raw.githubusercontent.com/Severity-svc/PhantomFluxPublic/refs/heads/main/Profiles/GrowAGarden/Handler.luau"
+) --// If the runmode is "Public" then the newhandler will be the same as the oldhandler.
 
 if not NewHandler then
 	error("[Source] Failed to load Handler")
@@ -18,7 +22,7 @@ end
 local Util = NewHandler:GetDirectory(
 	RunMode,
 	"Utility.luau",
-	"https://raw.githubusercontent.com/Severity-svc/PhantomFluxPublic/refs/heads/main/Profiles/GrowAGarden/Handler.luau"
+	"https://raw.githubusercontent.com/Severity-svc/PhantomFluxPublic/refs/heads/main/Profiles/GrowAGarden/Utility.luau"
 )
 local Library = NewHandler:GetDirectory(
 	RunMode,

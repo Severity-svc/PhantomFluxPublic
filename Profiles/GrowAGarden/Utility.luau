@@ -65,7 +65,7 @@ local Util = {
 		"Honey Glazed",
 		"Plasma",
 		"Frozen",
-		"Golden",
+		"Gold",
 		"Zombified",
 		"Molten",
 		"Rainbow",

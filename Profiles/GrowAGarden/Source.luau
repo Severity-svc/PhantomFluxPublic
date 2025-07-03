@@ -115,6 +115,8 @@ local PlantsToHarvest = Library:CreateDropdown(Farming, {
 	AllowNone = true,
 	Callback = function(option)
 		TargetPlants = option
+
+		print(type(option), option)
 	end,
 })
 

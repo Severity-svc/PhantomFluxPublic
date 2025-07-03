@@ -149,8 +149,6 @@ function ModuleHandler:HarvestPlant(Plant)
 
 	if Proxy.Enabled then
 		fireproximityprompt(Proxy)
-	else
-		warn("[ModuleHandler:HarvestPlant] Proxy is not enabled for plant: " .. Plant.Name)
 	end
 end
 

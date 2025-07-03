@@ -17,6 +17,7 @@ end
 
 local Util = NewHandler:GetDirectory(RunMode, "Utility.luau")
 local Library = NewHandler:GetDirectory(RunMode, "Library.luau")
+local Module = NewHandler:GetDirectory(RunMode, "Modules.luau")
 
 --// Init Library
 local Window = Library:Init()
@@ -29,6 +30,8 @@ local Player = Window:CreateTab("Player", "user")
 local Visual = Window:CreateTab("Visual", "eye")
 local Event = Window:CreateTab("Event", "calendar")
 local Misc = Window:CreateTab("Misc", "ellipsis")
+
+local Other = Library:AddConfigSection()
 
 --// Utility
 local Config = Util.Config
@@ -84,9 +87,43 @@ AboutUs:Button({
 	Title = "Void (0_void)",
 	Icon = "link",
 	Callback = function()
-		setclipboard("") --// TODOL add Void's socials link
-		Library:Notify({ Title = "Copied!", Content = "Void's socials link copied!", Duration = 3 })
+		Library:Notify({
+			Title = "Copied!",
+			Content = "Gang didnt want fame so all you get is his discord :sob:",
+			Duration = 3,
+		})
 	end,
 })
 
 --// Farming
+local AutoHarvest = Library:CreateSection(Farming, "Auto Harvest")
+local TargetPlants = nil --// Possible value types: nil, string, table {nil - none, string - one selected, table - multiple selected}
+local TargetMutations = nil --// Possible value types: nil, string, table {nil - none, string - one selected, table - multiple selected}
+
+local PlantsToHarvest = Library:CreateDropdown(Farming, {
+	Title = "Plants To Harvest",
+	Values = NewHandler:SortArray(Util.Fruits),
+	Value = { "All" },
+	Multi = true,
+	AllowNone = true,
+	Callback = function(option)
+		TargetPlants = option
+	end,
+})
+
+local Mutations = Library:CreateDropdown(Farming, {
+	Title = "Mutations",
+	Values = NewHandler:SortArray(Util.Mutations),
+	Value = { "All" },
+	Multi = true,
+	AllowNone = true,
+	Callback = function(option)
+		TargetMutations = option
+	end,
+})
+
+AutoHarvest:Toggle({
+	Title = "Auto Harvest",
+	Icon = "check",
+	Callback = function(State) end,
+})

@@ -1,5 +1,8 @@
+--// The reason i added Library is for my vscode to recognize the library and its functions :Heart:
+
 local Library = {}
 Library.__index = Library
+
 local RunMode = "Developer Mode"
 
 local OldHandler = loadstring(
@@ -78,6 +81,72 @@ function Library:Notify(Table)
 	})
 
 	return Notification
+end
+
+function Library:SelectTab(Index)
+	local Window = self:Init()
+
+	if not Window then
+		error("[Library] Failed to find Window")
+		return
+	end
+
+	Window:SelectTab(Index)
+end
+
+function Library:AddConfigSection()
+	local Window = self:Init()
+
+	local Divider = Window:Divider()
+	local WindowTab = Window:Tab({
+		Title = "Window and File Configuration",
+		Icon = "settings",
+		Desc = "Manage window settings and file configurations.",
+		ShowTabTitle = true,
+	})
+
+	local CreateThemeTab =
+		Window:Tab({ Title = "Create Theme", Icon = "palette", Desc = "Design and apply custom themes." })
+end
+
+function Library:CreateSection(Tab, Title)
+	local Section = Tab:Section({
+		Title = Title,
+		TextXAlignment = "Left",
+		TextSize = 17,
+	})
+
+	return Section
+end
+
+function Library:CreateToggle(Tab, Table)
+	local Toggle = Tab:Toggle(Table)
+
+	return Toggle
+end
+
+function Library:CreateButton(Tab, Table)
+	local Button = Tab:Button(Table)
+
+	return Button
+end
+
+function Library:CreateSlider(Tab, Table)
+	local Slider = Tab:Slider(Table)
+
+	return Slider
+end
+
+function Library:CreateDropdown(Tab, Table)
+	local Dropdown = Tab:Dropdown(Table)
+
+	return Dropdown
+end
+
+function Library:CreateInput(Tab, Table)
+	local Input = Tab:Input(Table)
+
+	return Input
 end
 
 return Library

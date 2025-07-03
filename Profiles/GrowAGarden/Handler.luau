@@ -22,10 +22,18 @@ end
 function Handler:GetDirectory(RunMode, FileName, URL)
 	if RunMode == "Developer Mode" then
 		if self:IsSupported("readfile") and self:IsSupported("isfile") and self:IsSupported("listfiles") then
-			local Path = "C:UserssentrOneDriveDocumentsGitHubPhantomFluxProfilesGrowAGarden"
-			if isfile(Path) then
-				local Files = listfiles(Path)
-				return Files
+			local Path = "C:\\Users\\sentr\\OneDrive\\Documents\\GitHub\\PhantomFlux\\Profiles\\GrowAGarden\\"
+				.. FileName
+
+			if isfolder(Path) then
+				local File = Path .. FileName
+				local Source = readfile(File)
+
+				if Source then
+					return loadstring(Source)()
+				else
+					error("[Handler]: Failed to read file: " .. File)
+				end
 			end
 		end
 	elseif RunMode == "Public" then
@@ -43,6 +51,18 @@ function Handler:GetDirectory(RunMode, FileName, URL)
 	else
 		error("[Handler]: Invalid RunMode")
 	end
+end
+
+function Handler:SortArray(Array)
+	if type(Array) ~= "table" then
+		error("[Handler]: Array must be a table")
+	end
+
+	table.sort(Array, function(a, b)
+		return tostring(a):lower() < tostring(b):lower()
+	end)
+
+	return Array
 end
 
 function Handler:IsSupported(Name)

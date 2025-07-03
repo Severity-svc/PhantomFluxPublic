@@ -19,7 +19,7 @@ function Handler:Loadstring(Url)
 	return Result
 end
 
-function Handler:GetDirectory(RunMode, FileName)
+function Handler:GetDirectory(RunMode, FileName, URL)
 	if RunMode == "Developer Mode" then
 		if self:IsSupported("readfile") and self:IsSupported("isfile") and self:IsSupported("listfiles") then
 			local Path = "C:UserssentrOneDriveDocumentsGitHubPhantomFluxProfilesGrowAGarden"
@@ -29,10 +29,17 @@ function Handler:GetDirectory(RunMode, FileName)
 			end
 		end
 	elseif RunMode == "Public" then
-		local Path = "https://raw.githubusercontent.com/Severity-svc/PhantomFlux/refs/heads/main/Profiles/GrowAGarden/"
-			.. FileName
+		if URL then
+			local Path = URL
 
-		return self:Loadstring(Path)
+			return self:Loadstring(Path)
+		else
+			local Path = "https://raw.githubusercontent.com/Severity-svc/PhantomFlux/refs/heads/main/Profiles/"
+				.. self.Name
+				.. "/"
+				.. FileName
+			return self:Loadstring(Path)
+		end
 	else
 		error("[Handler]: Invalid RunMode")
 	end

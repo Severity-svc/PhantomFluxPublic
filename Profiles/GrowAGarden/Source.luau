@@ -199,6 +199,8 @@ local Mutations = Library:CreateDropdown(Farming, {
 Module:Init(function()
 	local ConnectionInit = Module:SpawnConnection()
 	local Connection = nil
+	local LastTick = 0
+	local Delay = 0.01
 
 	Farming:Toggle({
 		Title = "AutoHarvest",
@@ -209,6 +211,12 @@ Module:Init(function()
 		Callback = function(State)
 			if State == true then
 				Connection = ConnectionInit:Connect("Heartbeat", function()
+					local Current = tick()
+					if Current - LastTick < Delay then
+						return
+					end
+					LastTick = Current
+
 					local Farm, Important = Module:GetFarm()
 
 					if not Farm or not Important then
@@ -307,7 +315,6 @@ Module:Init(function()
 
 								if FruitName then
 									Humanoid:EquipTool(v)
-									print(tostring(Module:GetPosition(PlantMethod)))
 									Module:Plant(Module:GetPosition(PlantMethod), FruitName)
 								end
 							end

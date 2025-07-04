@@ -1,52 +1,17 @@
 --// RunMode: This is for adding updates to the source, make sure to change it to "Public" when you are done.
 local RunMode = "Developer Mode"
 
---// Loading Handler
-local OldHandler = loadstring(
-	game:HttpGet(
-		"https://raw.githubusercontent.com/Severity-svc/PhantomFluxPublic/refs/heads/main/Profiles/GrowAGarden/Handler.luau"
-	)
-)()
-
-local NewHandler = OldHandler:GetDirectory(
-	RunMode,
-	"Handler.luau",
-	"https://raw.githubusercontent.com/Severity-svc/PhantomFluxPublic/refs/heads/main/Profiles/GrowAGarden/Handler.luau"
-) --// If the runmode is "Public" then the newhandler will be the same as the oldhandler.
-
-if not NewHandler then
-	error("[Source] Failed to load Handler")
-	NewHandler = OldHandler
-end
-
-local Util
-local Library
-local Module
-
 --// Loading Modules
-if RunMode == "Developer Mode" then
-	Util = NewHandler:GetDirectory(RunMode, "Utility.luau")
-	Library = NewHandler:GetDirectory(RunMode, "Library.luau")
-	Module = NewHandler:GetDirectory(RunMode, "Modules.luau")
-elseif RunMode == "Public" then
-	Util = loadstring(
-		game:HttpGet(
-			"https://raw.githubusercontent.com/Severity-svc/PhantomFluxPublic/refs/heads/main/Profiles/GrowAGarden/Utility.luau"
-		)
-	)()
+local Import = getgenv().Import
 
-	Library = loadstring(
-		game:HttpGet(
-			"https://raw.githubusercontent.com/Severity-svc/PhantomFluxPublic/refs/heads/main/Profiles/GrowAGarden/Library.luau"
-		)
-	)()
-
-	Module = loadstring(
-		game:HttpGet(
-			"https://raw.githubusercontent.com/Severity-svc/PhantomFluxPublic/refs/heads/main/Profiles/GrowAGarden/Modules.luau"
-		)
-	)()
+if not Import then
+	error("Import not found")
+	return
 end
+
+local Util = Import(RunMode, "Utility.luau")
+local Library = Import(RunMode, "Library.luau")
+local Module = Import(RunMode, "Modules.luau")
 
 --// Init Library
 local Window = Library:Init()
@@ -776,7 +741,7 @@ local PlantsToPlant = Library:CreateDropdown(Misc, {
 	end,
 })
 
-Module:Init(function()
+function Module:Init()
 	local ConnectionInit = Module:SpawnConnection()
 	local Connection = nil
 	local LastTick = 0
@@ -806,21 +771,18 @@ Module:Init(function()
 					if Trowel then
 						if TargetPlants4 == "All" then
 							for _, v in pairs(Plants) do
-								Module:Pickup(Trowel, v)
-								Module:Place(Trowel, v, Module:GetCFrame(PlantMethod2))
+								Module:MovePlant(Trowel, v, PlantMethod2)
 							end
-						elseif type(TargetPlants4) == "string" and not TargetPlants4 == "All" then
+						elseif type(TargetPlants4) == "string" and TargetPlants4 ~= "All" then
 							for _, v in pairs(Plants) do
 								if v.Name:find(TargetPlants4) then
-									Module:Pickup(Trowel, v)
-									Module:Place(Trowel, v, Module:GetCFrame(PlantMethod2))
+									Module:MovePlant(Trowel, v, PlantMethod2)
 								end
 							end
 						elseif type(TargetPlants4) == "table" and #TargetPlants4 > 0 then
 							for _, v in pairs(Plants) do
 								if table.find(TargetPlants4, v.Name) then
-									Module:Pickup(Trowel, v)
-									Module:Place(Trowel, v, Module:GetCFrame(PlantMethod2))
+									Module:MovePlant(Trowel, v, PlantMethod2)
 								end
 							end
 						end
@@ -831,7 +793,14 @@ Module:Init(function()
 					ConnectionInit:Disconnect(Connection)
 					Connection = nil
 				end
+
+				local Plants = Module:GetPhysicalPlants()
+				for _, v in pairs(Plants) do
+					if v:GetAttribute("Moved") ~= nil then
+						v:SetAttribute("Moved", nil)
+					end
+				end
 			end
 		end,
 	})
-end)
+end

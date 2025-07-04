@@ -1,7 +1,7 @@
 local ModuleHandler = {}
 ModuleHandler.__index = ModuleHandler
 
-local RunMode = "Public"
+local RunMode = "Developer Mode"
 
 --// Loading Handler
 local OldHandler = loadstring(

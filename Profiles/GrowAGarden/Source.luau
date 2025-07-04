@@ -1,5 +1,5 @@
 --// RunMode: This is for adding updates to the source, make sure to change it to "Public" when you are done.
-local RunMode = "Public"
+local RunMode = "Developer Mode"
 
 --// Loading Handler
 local OldHandler = loadstring(
@@ -161,9 +161,10 @@ AboutUs:Button({
 	Title = "Void (0_void)",
 	Icon = "link",
 	Callback = function()
+		setclipboard("https://github.com/0Void2391")
 		Library:Notify({
 			Title = "Copied!",
-			Content = "Gang didnt want fame so all you get is his discord :sob:",
+			Content = "Gang didnt want fame so all you get is his github 😭",
 			Duration = 3,
 		})
 	end,
@@ -200,7 +201,7 @@ Module:Init(function()
 	local ConnectionInit = Module:SpawnConnection()
 	local Connection = nil
 	local LastTick = 0
-	local Delay = 1
+	local Delay = 2
 
 	Farming:Toggle({
 		Title = "AutoHarvest",
@@ -367,7 +368,7 @@ local DelaySlider = Library:CreateSlider(Farming, {
 		Default = 15,
 	},
 	Callback = function(Value)
-		Delay = Value
+		Delay = tonumber(Value)
 	end,
 })
 

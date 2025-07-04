@@ -1,7 +1,7 @@
 local ModuleHandler = {}
 ModuleHandler.__index = ModuleHandler
 
-local RunMode = "Developer Mode"
+local RunMode = "Developer"
 
 --// Loading Modules
 local Import = getgenv().Import

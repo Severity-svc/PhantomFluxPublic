@@ -3,36 +3,15 @@ ModuleHandler.__index = ModuleHandler
 
 local RunMode = "Developer Mode"
 
---// Loading Handler
-local OldHandler = loadstring(
-	game:HttpGet(
-		"https://raw.githubusercontent.com/Severity-svc/PhantomFluxPublic/refs/heads/main/Profiles/GrowAGarden/Handler.luau"
-	)
-)()
-
-local NewHandler = OldHandler:GetDirectory(
-	RunMode,
-	"Handler.luau",
-	"https://raw.githubusercontent.com/Severity-svc/PhantomFluxPublic/refs/heads/main/Profiles/GrowAGarden/Handler.luau"
-) --// If the runmode is "Public" then the newhandler will be the same as the oldhandler.
-
-if not NewHandler then
-	error("[Source] Failed to load Handler")
-	NewHandler = OldHandler
-end
-
-local Util
-
 --// Loading Modules
-if RunMode == "Developer Mode" then
-	Util = NewHandler:GetDirectory(RunMode, "Utility.luau")
-elseif RunMode == "Public" then
-	Util = loadstring(
-		game:HttpGet(
-			"https://raw.githubusercontent.com/Severity-svc/PhantomFluxPublic/refs/heads/main/Profiles/GrowAGarden/Utility.luau"
-		)
-	)()
+local Import = getgenv().Import
+
+if not Import then
+	error("[Module]: Import not found")
+	return
 end
+
+local Util = Import(RunMode, "Utility.luau")
 
 --// Variables
 local Workspace = Util.Services.Workspace
@@ -348,11 +327,11 @@ function ModuleHandler:GetPhysicalPlants()
 	return Plants
 end
 
-function ModuleHandler:MovePlant()
-	if not plant:GetAttribute("Moved") then
-		Module:Pickup(Trowel, plant)
-		Module:Place(Trowel, plant, Module:GetCFrame(PlantMethod2))
-		plant:SetAttribute("Moved", true)
+function ModuleHandler:MovePlant(Trowel, Plant, PlantMethod)
+	if not Plant:GetAttribute("Moved") then
+		self:Pickup(Trowel, Plant)
+		self:Place(Trowel, Plant, self:GetCFrame(PlantMethod))
+		Plant:SetAttribute("Moved", true)
 	end
 end
 

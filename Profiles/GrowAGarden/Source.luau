@@ -1,5 +1,5 @@
 --// RunMode: This is for adding updates to the source, make sure to change it to "Public" when you are done.
-local RunMode = "Developer Mode"
+local RunMode = "Developer"
 
 --// Loading Modules
 local Import = getgenv().Import
@@ -9,9 +9,10 @@ if not Import then
 	return
 end
 
-local Util = Import(RunMode, "Utility.luau")
-local Library = Import(RunMode, "Library.luau")
-local Module = Import(RunMode, "Modules.luau")
+local Util = Import(RunMode, "Profiles/GrowAGarden/Utility.luau")
+local Library = Import(RunMode, "Profiles/GrowAGarden/Library.luau")
+local Module = Import(RunMode, "Profiles/GrowAGarden/Modules.luau")
+local Handler = Import(RunMode, "Profiles/GrowAGarden/Handler.luau")
 
 --// Init Library
 local Window = Library:Init()
@@ -45,24 +46,7 @@ local Config = {
 
 	["Auto Selling"] = {
 		Enabled = false,
-		Delay = 10, --// Delay in seconds
-	},
-
-	["Visuals"] = {
-		Enabled = false,
-		ShowPlants = true,
-		ShowMutations = true,
-		ShowSeeds = true,
-	},
-
-	["Player"] = {
-		Enabled = false,
-		ShowBackpackItems = true,
-		ShowCharacterItems = true,
-	},
-
-	["Misc"] = {
-		Enabled = false,
+		Delay = 10,
 	},
 }
 
@@ -142,7 +126,7 @@ local TargetMutations = Config["Auto Harvest"].TargetMutations --// Possible val
 
 local PlantsToHarvest = Library:CreateDropdown(Farming, {
 	Title = "Plants to Harvest",
-	Values = NewHandler:SortArray(Util.Fruits),
+	Values = Handler:SortArray(Util.Fruits),
 	Value = { "All" },
 	Multi = true,
 	AllowNone = true,
@@ -153,7 +137,7 @@ local PlantsToHarvest = Library:CreateDropdown(Farming, {
 
 local Mutations = Library:CreateDropdown(Farming, {
 	Title = "Required Mutations",
-	Values = NewHandler:SortArray(Util.Mutations),
+	Values = Handler:SortArray(Util.Mutations),
 	Value = { "All" },
 	Multi = true,
 	AllowNone = true,
@@ -239,7 +223,7 @@ local TargetPlants2 = Config["Auto Plant"].TargetPlants --// Possible value type
 
 local PlantsToPlant = Library:CreateDropdown(Farming, {
 	Title = "Plants to Plant",
-	Values = NewHandler:SortArray(Util.Fruits),
+	Values = Handler:SortArray(Util.Fruits),
 	Value = { "All" },
 	Multi = true,
 	AllowNone = true,
@@ -488,7 +472,7 @@ local TargetPlants3 = "Carrot"
 
 local PlantsToPlant = Library:CreateDropdown(Stock, {
 	Title = "Seeds to buy",
-	Values = NewHandler:SortArray(Util.SeedStock),
+	Values = Handler:SortArray(Util.SeedStock),
 	Value = { "Carrot" },
 	Multi = true,
 	AllowNone = true,
@@ -582,7 +566,7 @@ local TargetGear = "Watering Can"
 
 local PlantsToPlant = Library:CreateDropdown(Stock, {
 	Title = "Seeds to buy",
-	Values = NewHandler:SortArray(Util.GearStock),
+	Values = Handler:SortArray(Util.GearStock),
 	Value = { "Carrot" },
 	Multi = true,
 	AllowNone = true,
@@ -721,7 +705,7 @@ local PlantMethod2 = "UnderPlayer"
 
 local PlantsToPlant = Library:CreateDropdown(Misc, {
 	Title = "Plants To Move",
-	Values = NewHandler:SortArray(Util.Fruits),
+	Values = Handler:SortArray(Util.Fruits),
 	Value = { "All" },
 	Multi = true,
 	AllowNone = true,

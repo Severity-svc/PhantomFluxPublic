@@ -1,7 +1,7 @@
 if not getgenv().Import then
 	getgenv().Import = function(RunMode, FileName)
-		if RunMode == "DeveloperMode" then
-			local DirPath = "C:\\Users\\sentr\\OneDrive\\Documents\\GitHub\\PhantomFlux\\"
+		if RunMode == "Developer" then
+			local DirPath = "C:/Users/sentr/OneDrive/Documents/GitHub/PhantomFlux/"
 			local FilePath = DirPath .. FileName
 
 			if isfile(FilePath) then
@@ -15,7 +15,7 @@ if not getgenv().Import then
 				error("[Import]: File not found: " .. FilePath)
 			end
 		elseif RunMode == "Web" then
-			local BaseUrl = "https://raw.githubusercontent.com/Severity-svc/PhantomFluxPublic/"
+			local BaseUrl = "https://raw.githubusercontent.com/Severity-svc/PhantomFluxPublic/main/"
 			local FilePath = BaseUrl .. FileName
 
 			local Success, Response = pcall(function()
@@ -24,7 +24,7 @@ if not getgenv().Import then
 
 			if Success and Response then
 				if Response:find("<html>") then
-					error("[Import]: Invalid response content from: " .. FilePath)
+					error("[Import]: Invalid response content: " .. FilePath)
 				end
 				return loadstring(Response)()
 			else
@@ -43,6 +43,6 @@ for i, v in pairs(Util.Alias) do
 	if v == GameID then
 		local Branch = i
 
-		Import("Web", Branch .. "/Source.lua")
+		Import("Web", Branch .. "/Source.luau")
 	end
 end

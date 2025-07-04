@@ -11,7 +11,7 @@ if not Import then
 	return
 end
 
-local Util = Import(RunMode, "Utility.luau")
+local Util = Import(RunMode, "Profiles/GrowAGarden/Utility.luau")
 
 --// Variables
 local Workspace = Util.Services.Workspace

@@ -261,7 +261,6 @@ function ModuleHandler:GetCFrame(PlantMethod)
 		end
 
 		local Area = PetArea.Size
-
 		local X = (math.random() - 0.5) * Area.X
 		local Y = (math.random() - 0.5) * Area.Y
 		local Z = (math.random() - 0.5) * Area.Z
@@ -269,14 +268,18 @@ function ModuleHandler:GetCFrame(PlantMethod)
 		local Pos = PetArea.Position + Vector3.new(X, Y, Z)
 		return CFrame.new(Pos)
 	elseif PlantMethod == "UnderPlayer" then
-		return HumanoidRootPart and CFrame.new(HumanoidRootPart.Position) or nil
+		local HumanoidRootPart = Util.LocalPlayer.Character
+			and Util.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+		return HumanoidRootPart
+				and CFrame.new(HumanoidRootPart.Position.X, 0.135528564453125, HumanoidRootPart.Position.Z)
+			or nil
 	elseif PlantMethod == "UnderMouse" then
 		local Mouse = Util.LocalPlayer.Mouse
 		if Mouse and Mouse.Target then
-			return CFrame.new(Mouse.Hit.p)
-		else
-			return nil
+			local Hit = Mouse.Hit.Position
+			return CFrame.new(Hit.X, 0.135528564453125, Hit.Z)
 		end
+		return nil
 	else
 		error("[Module:GetCFrame] Invalid Method: " .. tostring(PlantMethod))
 		return nil
@@ -299,6 +302,7 @@ function ModuleHandler:GetTrowel(Equip)
 
 	for _, v in pairs(Character:GetChildren()) do
 		if v:IsA("Tool") and v.Name:find("Trowel") then
+			print("sk2")
 			return v
 		end
 	end
@@ -342,6 +346,14 @@ function ModuleHandler:GetPhysicalPlants()
 	end
 
 	return Plants
+end
+
+function ModuleHandler:MovePlant()
+	if not plant:GetAttribute("Moved") then
+		Module:Pickup(Trowel, plant)
+		Module:Place(Trowel, plant, Module:GetCFrame(PlantMethod2))
+		plant:SetAttribute("Moved", true)
+	end
 end
 
 return ModuleHandler

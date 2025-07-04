@@ -730,6 +730,101 @@ Module:Init(function()
 						return
 					end
 					LastTick = Current
+
+					local args = {
+						"SubmitAllPlants",
+					}
+					game:GetService("ReplicatedStorage")
+						:WaitForChild("GameEvents")
+						:WaitForChild("SummerHarvestRemoteEvent")
+						:FireServer(unpack(args))
+				end)
+			else
+				if Connection then
+					ConnectionInit:Disconnect(Connection)
+					Connection = nil
+				end
+			end
+		end,
+	})
+end)
+
+--// Misc
+local AutoMoveSec = Library:CreateSection(Misc, "Auto Move Plants (Trowel Required)")
+local TargetPlants4 = "All"
+local PlantMethod2 = "UnderPlayer"
+
+local PlantsToPlant = Library:CreateDropdown(Misc, {
+	Title = "Plants To Move",
+	Values = NewHandler:SortArray(Util.Fruits),
+	Value = { "All" },
+	Multi = true,
+	AllowNone = true,
+	Callback = function(option)
+		TargetPlants4 = option
+	end,
+})
+
+local PlantsToPlant = Library:CreateDropdown(Misc, {
+	Title = "Move Method",
+	Values = { "UnderPlayer", "UnderMouse", "Random" },
+	Value = "UnderPlayer",
+	Multi = false,
+	AllowNone = true,
+	Callback = function(option)
+		PlantMethod2 = option
+	end,
+})
+
+Module:Init(function()
+	local ConnectionInit = Module:SpawnConnection()
+	local Connection = nil
+	local LastTick = 0
+	local Delay2 = 0.1
+	local Farm, Important = Module:GetFarm()
+
+	Misc:Toggle({
+		Title = "Auto Move Plants",
+		Desc = "Automatically Moves Plants In The Selected Place",
+		Icon = "check",
+		Type = "Checkbox",
+		Default = false,
+		Callback = function(State)
+			if State == true then
+				ConnectionInit:Disconnect(Connection)
+
+				Connection = ConnectionInit:Connect("Heartbeat", function()
+					local Current = tick()
+					if Current - LastTick < Delay2 then
+						return
+					end
+					LastTick = Current
+
+					local Plants = Module:GetPhysicalPlants()
+					local Trowel = Module:GetTrowel(true)
+
+					if Trowel then
+						if TargetPlants4 == "All" then
+							for _, v in pairs(Plants) do
+								Module:Pickup(Trowel, v)
+								Module:Place(Trowel, v, Module:GetCFrame(PlantMethod2))
+							end
+						elseif type(TargetPlants4) == "string" and not TargetPlants4 == "All" then
+							for _, v in pairs(Plants) do
+								if v.Name:find(TargetPlants4) then
+									Module:Pickup(Trowel, v)
+									Module:Place(Trowel, v, Module:GetCFrame(PlantMethod2))
+								end
+							end
+						elseif type(TargetPlants4) == "table" and #TargetPlants4 > 0 then
+							for _, v in pairs(Plants) do
+								if table.find(TargetPlants4, v.Name) then
+									Module:Pickup(Trowel, v)
+									Module:Place(Trowel, v, Module:GetCFrame(PlantMethod2))
+								end
+							end
+						end
+					end
 				end)
 			else
 				if Connection then

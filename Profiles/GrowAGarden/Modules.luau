@@ -250,4 +250,98 @@ function ModuleHandler:BuyGear(Name)
 		:FireServer(unpack(args))
 end
 
+--// AutoMove Section
+function ModuleHandler:GetCFrame(PlantMethod)
+	if PlantMethod == "Random" then
+		local Farm = self:GetFarm()
+		local PetArea = Farm and Farm:FindFirstChild("PetArea")
+		if not PetArea then
+			warn("[GetCFrame] PetArea not found")
+			return nil
+		end
+
+		local Area = PetArea.Size
+
+		local X = (math.random() - 0.5) * Area.X
+		local Y = (math.random() - 0.5) * Area.Y
+		local Z = (math.random() - 0.5) * Area.Z
+
+		local Pos = PetArea.Position + Vector3.new(X, Y, Z)
+		return CFrame.new(Pos)
+	elseif PlantMethod == "UnderPlayer" then
+		return HumanoidRootPart and CFrame.new(HumanoidRootPart.Position) or nil
+	elseif PlantMethod == "UnderMouse" then
+		local Mouse = Util.LocalPlayer.Mouse
+		if Mouse and Mouse.Target then
+			return CFrame.new(Mouse.Hit.p)
+		else
+			return nil
+		end
+	else
+		error("[Module:GetCFrame] Invalid Method: " .. tostring(PlantMethod))
+		return nil
+	end
+end
+
+function ModuleHandler:GetTrowel(Equip)
+	local Backpack = Util.LocalPlayer.Backpack
+
+	for _, v in pairs(Backpack:GetChildren()) do
+		if v:IsA("Tool") and v.Name:find("Trowel") then
+			print("sj")
+			if Equip then
+				Humanoid:EquipTool(v)
+			end
+
+			return v
+		end
+	end
+
+	for _, v in pairs(Character:GetChildren()) do
+		if v:IsA("Tool") and v.Name:find("Trowel") then
+			return v
+		end
+	end
+
+	return nil
+end
+
+function ModuleHandler:Place(Trowel, Plant, CFrame)
+	local args = {
+		"Place",
+		Trowel, --// Loc: Character
+		Plant,
+		CFrame,
+	}
+	game:GetService("ReplicatedStorage")
+		:WaitForChild("GameEvents")
+		:WaitForChild("TrowelRemote")
+		:InvokeServer(unpack(args))
+end
+
+function ModuleHandler:Pickup(Trowel, Plant)
+	local args = {
+		"Pickup",
+		Trowel,
+		Plant,
+	}
+	game:GetService("ReplicatedStorage")
+		:WaitForChild("GameEvents")
+		:WaitForChild("TrowelRemote")
+		:InvokeServer(unpack(args))
+end
+
+function ModuleHandler:GetPhysicalPlants()
+	local Plants = {}
+	local Farm, Imp = self:GetFarm()
+
+	for _, v in pairs(Imp:FindFirstChild("Plants_Physical"):GetChildren()) do
+		if v:IsA("Model") then
+			table.insert(Plants, v)
+		end
+	end
+
+	return Plants
+end
+
 return ModuleHandler

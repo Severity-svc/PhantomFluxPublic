@@ -20,7 +20,7 @@ function Library:Init()
 			Icon = "rbxassetid://79794145409508",
 			IconThemed = true,
 			Author = "Scripted by: severitysvc",
-			Folder = "PhantomFlux",
+			Folder = "",
 			Size = UDim2.fromOffset(620, 480),
 			Transparent = true,
 			Theme = "Dark",

@@ -58,6 +58,7 @@ local Util = {
 		"Overgrown",
 		"Wet",
 		"Chilled",
+		"Amber",
 		"Chocolate",
 		"Moonlit",
 		"Windstruck",

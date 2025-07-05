@@ -675,7 +675,7 @@ Module:Init(function()
 end)
 
 --// Event
-Library:CreateSection(Misc, "Summer Harvest")
+Library:CreateSection(Event, "Summer Harvest")
 Module:Init(function()
 	local ConnectionInit = Module:SpawnConnection()
 	local Connection = nil
@@ -717,7 +717,7 @@ Module:Init(function()
 	})
 end)
 
-Library:CreateSection(Misc, "Prehistoric Event")
+Library:CreateSection(Event, "Prehistoric Event")
 
 local TargetPet = nil
 local Tool, Strings = Module:GetPets()
@@ -1217,7 +1217,7 @@ local GearCrafts = Library:CreateButton(Misc, {
 	end,
 })
 
-Library:CreateSection(Misc, "Player Stats", 20, "Info")
+--[[Library:CreateSection(Misc, "Player Stats", 20, "Info")
 
 local InventoryValue = Library:CreateSection(
 	Misc,
@@ -1258,6 +1258,8 @@ end)
 Character.ChildRemoved:Connect(function()
 	HeldItemVal:SetTitle('Held Item Value: <font color="rgb(0, 255, 0)">' .. Module:CalculateHeldItem() .. "</font>")
 end)
+]]
+--// Unsupported Executor
 
 Module:SendNotification('<font color="rgb(173,216,230)">Thanks for using Phantom Flux!</font>')
 Module:SendNotification('<font color="rgb(173,216,230)">Join Our Discord For More Updates</font>')

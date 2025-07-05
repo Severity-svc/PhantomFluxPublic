@@ -120,7 +120,7 @@ AboutUs:Button({
 })
 
 --// Farming, Auto Harvest
-local AutoHarvest = Library:CreateSection(Farming, "Auto Harvest")
+Library:CreateSection(Farming, "Auto Harvest")
 local TargetPlants = Config["Auto Harvest"].TargetPlants --// Possible value types: nil, string, table {nil - none, string - one selected, table - multiple selected}
 local TargetMutations = Config["Auto Harvest"].TargetMutations --// Possible value types: nil, string, table {nil - none, string - one selected, table - multiple selected}
 
@@ -217,7 +217,7 @@ Module:Init(function()
 end)
 
 --// Auto Plant
-local AutoPlant = Library:CreateSection(Farming, "Auto Plant")
+Library:CreateSection(Farming, "Auto Plant")
 local PlantMethod = Config["Auto Plant"].PlantMethod --// Possible value types: "Random", "UnderPlayer", "UnderMouse"
 local TargetPlants2 = Config["Auto Plant"].TargetPlants --// Possible value types: nil, string, table {nil - none, string - one selected, table - multiple selected}
 
@@ -274,7 +274,7 @@ Module:Init(function()
 							if v:IsA("Tool") then
 								local FruitName = v.Name:match("^(.-) Seed")
 
-								if FruitName and FruitName == TargetPlants2 then
+								if FruitName and FruitName:find(TargetPlants2) then
 									Humanoid:EquipTool(v)
 									Module:Plant(Module:GetPosition(PlantMethod), FruitName)
 								end
@@ -304,7 +304,7 @@ Module:Init(function()
 end)
 
 --// Auto Selling
-local AutoSelling = Library:CreateSection(Farming, "Auto Selling")
+Library:CreateSection(Farming, "Auto Selling")
 local Delay = Config["Auto Selling"].Delay --// Delay in seconds
 
 local DelaySlider = Library:CreateSlider(Farming, {
@@ -372,7 +372,7 @@ Module:Init(function()
 	})
 end)
 
-local UISection = Library:CreateSection(Farming, "Proximity Prompts")
+Library:CreateSection(Farming, "Proximity Prompts")
 
 Module:Init(function()
 	local ConnectionInit = Module:SpawnConnection()
@@ -425,12 +425,12 @@ Module:Init(function()
 end)
 
 --// Stock
-local UISection = Library:CreateSection(Stock, "Enable Uis")
+Library:CreateSection(Stock, "Enable Uis")
 
 Module:Init(function()
 	Stock:Toggle({
-		Title = "Enable Seeds UI",
-		Desc = "Show Seed Stock ui",
+		Title = "Enable Seeds Shop UI",
+		Desc = "Shows Seed Shop ui",
 		Icon = "check",
 		Type = "Checkbox",
 		Default = false,
@@ -442,8 +442,8 @@ end)
 
 Module:Init(function()
 	Stock:Toggle({
-		Title = "Enable Gear UI",
-		Desc = "Show Seed Stock ui",
+		Title = "Enable Gear Shop UI",
+		Desc = "Shows Gear Shop UI",
 		Icon = "check",
 		Type = "Checkbox",
 		Default = false,
@@ -455,8 +455,8 @@ end)
 
 Module:Init(function()
 	Stock:Toggle({
-		Title = "Enable Event UI",
-		Desc = "Show Seed Stock ui",
+		Title = "Enable Event Shop UI",
+		Desc = "Shows Event UI",
 		Icon = "check",
 		Type = "Checkbox",
 		Default = false,
@@ -466,8 +466,21 @@ Module:Init(function()
 	})
 end)
 
+Module:Init(function()
+	Stock:Toggle({
+		Title = "Enable Cosmetic Shop UI",
+		Desc = "Shows Cosmetic UI",
+		Icon = "check",
+		Type = "Checkbox",
+		Default = false,
+		Callback = function(State)
+			Util.LocalPlayer.PlayerGui.CosmeticShop_UI.Enabled = State
+		end,
+	})
+end)
+
 --// AutoBuy Stocks
-local AutoBuySec = Library:CreateSection(Stock, "Auto Buy Seeds")
+Library:CreateSection(Stock, "Auto Buy Seeds")
 local TargetPlants3 = "Carrot"
 
 local PlantsToPlant = Library:CreateDropdown(Stock, {
@@ -561,13 +574,13 @@ Module:Init(function()
 	})
 end)
 
-local AutoBuySec = Library:CreateSection(Stock, "Auto Buy Gear")
+Library:CreateSection(Stock, "Auto Buy Gear")
 local TargetGear = "Watering Can"
 
 local PlantsToPlant = Library:CreateDropdown(Stock, {
-	Title = "Seeds to buy",
+	Title = "Gears to buy",
 	Values = Handler:SortArray(Util.GearStock),
-	Value = { "Carrot" },
+	Value = { "Watering Can" },
 	Multi = true,
 	AllowNone = true,
 	Callback = function(option)
@@ -699,7 +712,7 @@ Module:Init(function()
 end)
 
 --// Misc
-local AutoMoveSec = Library:CreateSection(Misc, "Auto Move Plants (Trowel Required)")
+Library:CreateSection(Misc, "Auto Move Plants (Trowel Required)")
 local TargetPlants4 = "All"
 local PlantMethod2 = "UnderPlayer"
 
@@ -787,4 +800,40 @@ function Module:Init()
 			end
 		end,
 	})
+end
+
+--// Teleports
+Library:CreateSection(Misc, "Teleport to places")
+
+local TpZone = "Middle"
+local TeleportZones = Library:CreateDropdown(Misc, {
+	Title = "Teleport Zones",
+	Values = { "Gear Shop", "Pet Shop", "Middle", "Cosmetics", "Crafting Zone" },
+	Value = "Middle",
+	Multi = false,
+	AllowNone = true,
+	Callback = function(option)
+		TpZone = option
+	end,
+})
+
+local TpButton = Library:CreateButton(Misc, {
+	Title = "Tp To Zone",
+	Desc = "Teleports you to the selected zone",
+	Locked = false,
+	Callback = function()
+		for i, v in pairs(Util.Positions) do
+			if i == TpZone then
+				HumanoidRootPart.CFrame = v
+			end
+		end
+	end,
+})
+
+--// Pets
+Library:CreateSection(Misc, "Auto Hatching")
+
+--// Server Hopping
+if getgenv().queue_on_teleport then
+	queue_on_teleport(Import("Web", "Loader.lua"))
 end

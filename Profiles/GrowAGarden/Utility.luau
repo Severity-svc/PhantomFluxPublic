@@ -1,3 +1,4 @@
+local TeleportService = game:GetService("TeleportService")
 local Util = {
 	GithubUrl = "https://raw.githubusercontent.com/sentr/PhantomFlux/main/Profiles/GrowAGarden/",
 
@@ -131,6 +132,7 @@ local Util = {
 		HttpService = game:GetService("HttpService"),
 		Workspace = game:GetService("Workspace"),
 		UserInputService = game:GetService("UserInputService"),
+		TeleportService = game:GetService("TeleportService"),
 	},
 
 	LocalPlayer = {
@@ -162,6 +164,76 @@ local Util = {
 			0.999513805,
 			7.68303821e-09,
 			-0.0311789345
+		),
+		["Middle"] = CFrame.new(
+			-105.796562,
+			4.40001249,
+			-7.66513491,
+			0.999132276,
+			2.76632157e-08,
+			-0.0416502953,
+			-2.98415621e-08,
+			1,
+			-5.16791125e-08,
+			0.0416502953,
+			5.287718e-08,
+			0.999132276
+		),
+		["Gear Shop"] = CFrame.new(
+			-287.435242,
+			2.99999976,
+			-13.8443823,
+			0.0547213368,
+			-7.35218553e-09,
+			0.998501658,
+			-6.09078299e-09,
+			1,
+			7.69701369e-09,
+			-0.998501658,
+			-6.50284804e-09,
+			0.0547213368
+		),
+		["Pet Shop"] = CFrame.new(
+			-286.803162,
+			2.99999976,
+			-2.52812886,
+			0.0324877948,
+			1.11254828e-09,
+			0.999472141,
+			1.7034979e-09,
+			1,
+			-1.16850796e-09,
+			-0.999472141,
+			1.74056092e-09,
+			0.0324877948
+		),
+		["Cosmetic Shop"] = CFrame.new(
+			-286.219788,
+			2.99999976,
+			-25.2869682,
+			0.0311784148,
+			5.00979258e-09,
+			0.999513865,
+			-7.33615946e-10,
+			1,
+			-4.98934494e-09,
+			-0.999513865,
+			-5.77699388e-10,
+			0.0311784148
+		),
+		["Crafting Zone"] = CFrame.new(
+			-285.65033,
+			2.99999976,
+			-34.3859901,
+			0.00631149486,
+			-8.13705867e-08,
+			0.999980092,
+			6.98285829e-09,
+			1,
+			8.13281318e-08,
+			-0.999980092,
+			6.469417e-09,
+			0.00631149486
 		),
 	},
 }

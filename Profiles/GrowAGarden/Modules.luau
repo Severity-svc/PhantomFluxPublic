@@ -335,4 +335,18 @@ function ModuleHandler:MovePlant(Trowel, Plant, PlantMethod)
 	end
 end
 
+--// Object_Physical
+
+function ModuleHandler:GetPet()
+	local Farm, Imp = self:GetFarm()
+
+	for _, v in pairs(Imp:FindFirstChild("Objects_Physical"):GetChildren()) do
+		if v.Name == "PetEgg" then
+			return v
+		end
+	end
+
+	return nil
+end
+
 return ModuleHandler

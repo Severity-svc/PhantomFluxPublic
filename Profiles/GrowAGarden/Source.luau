@@ -27,8 +27,8 @@ local Window = Library:Init()
 local AboutUs = Library:CreateTab("About Us", "info")
 local Farming = Library:CreateTab("Farming", "wheat")
 local Stock = Library:CreateTab("Stock", "store")
-local Player = Library:CreateTab("Player", "user")
-local Visual = Library:CreateTab("Visual", "eye")
+--// local Player = Library:CreateTab("Player", "user") Will Add Soon
+--// local Visual = Library:CreateTab("Visual", "eye") Will Add Son
 local Event = Library:CreateTab("Event", "calendar")
 local Misc = Library:CreateTab("Misc", "ellipsis")
 
@@ -159,7 +159,7 @@ Module:Init(function()
 	local Delay = 2
 
 	Farming:Toggle({
-		Title = "AutoHarvest",
+		Title = "Auto Harvest Fruits",
 		Desc = "Automatically Harvest Plants Based On Your Filters",
 		Icon = "check",
 		Type = "Checkbox",
@@ -675,7 +675,7 @@ Module:Init(function()
 end)
 
 --// Event
-
+Library:CreateSection(Misc, "Summer Harvest")
 Module:Init(function()
 	local ConnectionInit = Module:SpawnConnection()
 	local Connection = nil
@@ -717,6 +717,91 @@ Module:Init(function()
 	})
 end)
 
+Library:CreateSection(Misc, "Prehistoric Event")
+
+local TargetPet = nil
+local Tool, Strings = Module:GetPets()
+
+local PetsToInput = Library:CreateDropdown(Event, {
+	Title = "Pets To Input",
+	Desc = "Select the pets you want to input in the machine",
+	Values = Handler:SortArray(Strings),
+	Value = {},
+	Multi = true,
+	AllowNone = true,
+	Callback = function(option)
+		TargetPet = option
+	end,
+})
+
+local PetInput = Library:CreateButton(Event, {
+	Title = "Input Pet",
+	Desc = "Inputs the selected pet into the dino machine",
+	Locked = false,
+	Callback = function()
+		if type(TargetPet) == "string" then
+			local Has = Module:HasItem(TargetPet, true)
+
+			if Has then
+				local args = {
+					"MachineInteract",
+				}
+				game:GetService("ReplicatedStorage")
+					:WaitForChild("GameEvents")
+					:WaitForChild("DinoMachineService_RE")
+					:FireServer(unpack(args))
+			end
+		elseif type(TargetPet) == "table" then
+			for _, v in pairs(TargetPet) do
+				local Has = Module:HasItem(v, true)
+
+				if Has then
+					local args = {
+						"MachineInteract",
+					}
+					game:GetService("ReplicatedStorage")
+						:WaitForChild("GameEvents")
+						:WaitForChild("DinoMachineService_RE")
+						:FireServer(unpack(args))
+				end
+			end
+		end
+	end,
+})
+
+local RefreshList = Library:CreateButton(Event, {
+	Title = "Refresh Pets LIst",
+	Locked = false,
+	Callback = function()
+		local Tool, Strings = Module:GetPets()
+
+		PetsToInput:Refresh(Handler:SortArray(Strings))
+	end,
+})
+
+Library:CreateSection(Event, "Auto Craft Event Items")
+local ItemToCraft = "Ancient Seed Pack"
+
+local ItemCrafts = Library:CreateDropdown(Event, {
+	Title = "Item to Craft",
+	Values = Handler:SortArray(Util["Event Crafts"]),
+	Value = ItemToCraft,
+	Multi = false,
+	AllowNone = true,
+	Callback = function(option)
+		ItemToCraft = option
+	end,
+})
+
+local SeedCraft = Library:CreateButton(Event, {
+	Title = "Craft Selected Item",
+	Desc = "Crafts the item you selected",
+	Locked = false,
+	Callback = function()
+		Module:Craft(ItemToCraft, 3)
+	end,
+})
+
 --// Misc
 Library:CreateSection(Misc, "Auto Move Plants (Trowel Required)")
 local TargetPlants4 = "All"
@@ -744,7 +829,7 @@ local PlantsToPlant = Library:CreateDropdown(Misc, {
 	end,
 })
 
-function Module:Init()
+Module:Init(function()
 	local ConnectionInit = Module:SpawnConnection()
 	local Connection = nil
 	local LastTick = 0
@@ -806,7 +891,7 @@ function Module:Init()
 			end
 		end,
 	})
-end
+end)
 
 --// Teleports
 Library:CreateSection(Misc, "Teleport to places")
@@ -814,7 +899,7 @@ Library:CreateSection(Misc, "Teleport to places")
 local TpZone = "Middle"
 local TeleportZones = Library:CreateDropdown(Misc, {
 	Title = "Teleport Zones",
-	Values = { "Gear Shop", "Pet Shop", "Middle", "Cosmetics", "Crafting Zone" },
+	Values = { "Gear Shop", "Pet Shop", "Middle", "Cosmetics Shop", "Crafting Zone" },
 	Value = "Middle",
 	Multi = false,
 	AllowNone = true,
@@ -837,10 +922,258 @@ local TpButton = Library:CreateButton(Misc, {
 })
 
 --// Pets
-Library:CreateSection(Misc, "Auto Hatching")
+Library:CreateSection(Misc, "Hatching Eggs")
+
+Module:Init(function()
+	local ConnectionInit = Module:SpawnConnection()
+	local Connection = nil
+	local LastTick = 0
+	local Delay2 = 5
+	local Farm, Imp = Module:GetFarm()
+
+	Misc:Toggle({
+		Title = "Auto Hatch Eggs",
+		Desc = "Automatically hatches all the ready eggs in ur garden",
+		Icon = "check",
+		Type = "Checkbox",
+		Default = false,
+		Callback = function(State)
+			if State == true then
+				ConnectionInit:Disconnect(Connection)
+
+				Connection = ConnectionInit:Connect("Heartbeat", function()
+					local Current = tick()
+					if Current - LastTick < Delay2 then
+						return
+					end
+					LastTick = Current
+
+					for _, v in pairs(Imp:FindFirstChild("Objects_Physical"):GetChildren()) do
+						if v.Name == "PetEgg" and v:GetAttribute("READY", true) then
+							Module:ManagePetService("HatchPet", v)
+						end
+					end
+				end)
+			else
+				if Connection then
+					ConnectionInit:Disconnect(Connection)
+					Connection = nil
+				end
+			end
+		end,
+	})
+end)
+
+local HatchAllButton = Library:CreateButton(Misc, {
+	Title = "Hatch All Pets",
+	Desc = "Hatches all the ready eggs in ur garden",
+	Locked = false,
+	Callback = function()
+		local Farm, Imp = Module:GetFarm()
+
+		for _, v in pairs(Imp:FindFirstChild("Objects_Physical"):GetChildren()) do
+			if v.Name == "PetEgg" and v:GetAttribute("READY", true) then
+				Module:ManagePetService("HatchPet", v)
+			end
+		end
+	end,
+})
+
+Library:CreateSection(Misc, "Placing Eggs")
+
+Module:Init(function()
+	local ConnectionInit = Module:SpawnConnection()
+	local Connection = nil
+	local LastTick = 0
+	local Delay2 = 1
+	local Farm, Imp = Module:GetFarm()
+
+	Misc:Toggle({
+		Title = "Auto Place Eggs",
+		Desc = "Automatically places all the eggs in ur inventory",
+		Icon = "check",
+		Type = "Checkbox",
+		Default = false,
+		Callback = function(State)
+			if State == true then
+				ConnectionInit:Disconnect(Connection)
+
+				Connection = ConnectionInit:Connect("Heartbeat", function()
+					local Current = tick()
+					if Current - LastTick < Delay2 then
+						return
+					end
+					LastTick = Current
+
+					local Has, Apply = Module:HasItem("Egg", true)
+
+					if Has then
+						Module:ManagePetService("CreateEgg", Module:GetPosition("Random"))
+					else
+						for _, v in pairs(Character:GetChildren()) do
+							if v:IsA("Tool") and v.Name:find("Egg") then
+								Module:ManagePetService("CreateEgg", Module:GetPosition("Random"))
+							end
+						end
+					end
+				end)
+			else
+				if Connection then
+					ConnectionInit:Disconnect(Connection)
+					Connection = nil
+				end
+			end
+		end,
+	})
+end)
+
+local HatchAllButton = Library:CreateButton(Misc, {
+	Title = "Place All Eggs",
+	Desc = "places all the eggs in ur inventory",
+	Locked = false,
+	Callback = function()
+		local Has, Apply = Module:HasItem("Egg", true)
+
+		if Has then
+			Module:ManagePetService("CreateEgg", Module:GetPosition("Random"))
+		else
+			for _, v in pairs(Character:GetChildren()) do
+				if v:IsA("Tool") and v.Name:find("Egg") then
+					Module:ManagePetService("CreateEgg", Module:GetPosition("Random"))
+				end
+			end
+		end
+	end,
+})
+
+--// Crates
+Library:CreateSection(Misc, "Opening Crates")
+
+Module:Init(function()
+	local ConnectionInit = Module:SpawnConnection()
+	local Connection = nil
+	local LastTick = 0
+	local Delay2 = 5
+	local Farm, Imp = Module:GetFarm()
+
+	Misc:Toggle({
+		Title = "Auto Open Crates",
+		Desc = "Automatically opens all the ready crates in ur garden",
+		Icon = "check",
+		Type = "Checkbox",
+		Default = false,
+		Callback = function(State)
+			if State == true then
+				ConnectionInit:Disconnect(Connection)
+
+				Connection = ConnectionInit:Connect("Heartbeat", function()
+					local Current = tick()
+					if Current - LastTick < Delay2 then
+						return
+					end
+					LastTick = Current
+
+					for _, v in pairs(Imp:FindFirstChild("Objects_Physical"):GetChildren()) do
+						if v.Name == "CosmeticCrate" and v:GetAttribute("READY", true) then
+							Module:ManageCrateService("OpenCrate", v)
+						end
+					end
+				end)
+			else
+				if Connection then
+					ConnectionInit:Disconnect(Connection)
+					Connection = nil
+				end
+			end
+		end,
+	})
+end)
+
+local HatchAllButton = Library:CreateButton(Misc, {
+	Title = "Open All Crates",
+	Desc = "Opens all the ready crates in ur garden",
+	Locked = false,
+	Callback = function()
+		local Farm, Imp = Module:GetFarm()
+
+		for _, v in pairs(Imp:FindFirstChild("Objects_Physical"):GetChildren()) do
+			if v.Name == "CosmeticCrate" and v:GetAttribute("READY", true) then
+				Module:ManageCrateService("OpenCrate", v)
+			end
+		end
+	end,
+})
+
+Library:CreateSection(Misc, "Placing Crates")
+
+Module:Init(function()
+	local ConnectionInit = Module:SpawnConnection()
+	local Connection = nil
+	local LastTick = 0
+	local Delay2 = 1
+	local Farm, Imp = Module:GetFarm()
+
+	Misc:Toggle({
+		Title = "Auto Place Crates",
+		Desc = "Automatically places all the crates in ur inventory",
+		Icon = "check",
+		Type = "Checkbox",
+		Default = false,
+		Callback = function(State)
+			if State == true then
+				ConnectionInit:Disconnect(Connection)
+
+				Connection = ConnectionInit:Connect("Heartbeat", function()
+					local Current = tick()
+					if Current - LastTick < Delay2 then
+						return
+					end
+					LastTick = Current
+
+					local Has, Apply = Module:HasItem("Crate", true)
+
+					if Has then
+						Module:ManageCrateService("CreateCrate", Module:GetPosition("Random"))
+					else
+						for _, v in pairs(Character:GetChildren()) do
+							if v:IsA("Tool") and v.Name:find("Crate") then
+								Module:ManagePetService("CreateCrate", Module:GetPosition("Random"))
+							end
+						end
+					end
+				end)
+			else
+				if Connection then
+					ConnectionInit:Disconnect(Connection)
+					Connection = nil
+				end
+			end
+		end,
+	})
+end)
+
+local HatchAllButton = Library:CreateButton(Misc, {
+	Title = "Place All Crates",
+	Desc = "places all the crates in ur inventory",
+	Locked = false,
+	Callback = function()
+		local Has, Apply = Module:HasItem("Crate", true)
+
+		if Has then
+			Module:ManageCrateService("CreateCrate", Module:GetPosition("Random"))
+		else
+			for _, v in pairs(Character:GetChildren()) do
+				if v:IsA("Tool") and v.Name:find("Crate") then
+					Module:ManagePetService("CreateCrate", Module:GetPosition("Random"))
+				end
+			end
+		end
+	end,
+})
 
 Library:CreateSection(Misc, "Auto Craft Seeds")
 local SeedToCraft = "Peace Lily"
+
 local SeedCrafts = Library:CreateDropdown(Misc, {
 	Title = "Seed to Craft",
 	Values = Handler:SortArray(Util["Seed Crafts"]),
@@ -862,7 +1195,8 @@ local SeedCraft = Library:CreateButton(Misc, {
 })
 
 Library:CreateSection(Misc, "Auto Craft Gears")
-local GearToCraft = "Lightning rod"
+local GearToCraft = "Lightning Rod"
+
 local GearCrafts = Library:CreateDropdown(Misc, {
 	Title = "Gear to Craft",
 	Values = Handler:SortArray(Util["Gear Crafts"]),
@@ -883,28 +1217,48 @@ local GearCrafts = Library:CreateButton(Misc, {
 	end,
 })
 
-Library:CreateSection(Misc, "Player Stats", 20)
-local InventoryValue = Misc:Section({
-	Title = "Section",
-	TextXAlignment = "Left",
-	TextSize = 17, -- Default Size
-}) --Library:CreateSection(Misc, "Inventory Value: " .. tostring(Module:CalculateInventory()) .. "")
-local HeldItemVal = Library:CreateSection(Misc, "Held Item Value: " .. tostring(Module:CalculateHeldItem()) .. "")
-Library:CreateSection(Misc, "")
+Library:CreateSection(Misc, "Player Stats", 20, "Info")
+
+local InventoryValue = Library:CreateSection(
+	Misc,
+	'Inventory Value: <font color="rgb(0, 255, 0)">' .. Module:CalculateInventory() .. "</font>"
+)
+
+local HeldItemVal = Library:CreateSection(
+	Misc,
+	'Held Item Value: <font color="rgb(0, 255, 0)">' .. Module:CalculateHeldItem() .. "</font>"
+)
+
+local ItemCount = Library:CreateSection(
+	Misc,
+	'Items In Inventory: <font color="rgb(0, 255, 0)">' .. Module:GetItemCount(Backpack) .. "</font>"
+)
 Library:CreateSection(Misc, "")
 
 Backpack.ChildAdded:Connect(function()
-	InventoryValue:SetTitle("Inventory Value: " .. tostring(Module:CalculateInventory()) .. "")
+	InventoryValue:SetTitle(
+		'Inventory Value: <font color="rgb(0, 255, 0)">' .. Module:CalculateInventory() .. "</font>"
+	)
+
+	ItemCount:SetTitle('Inventory Value: <font color="rgb(0, 255, 0)">' .. Module:GetItemCount(Backpack) .. "</font>")
 end)
 
 Backpack.ChildRemoved:Connect(function()
-	InventoryValue:SetTitle("Inventory Value: " .. tostring(Module:CalculateHeldItem()) .. "")
+	InventoryValue:SetTitle(
+		'Inventory Value: <font color="rgb(0, 255, 0)">' .. Module:CalculateInventory() .. "</font>"
+	)
+
+	ItemCount:SetTitle('Inventory Value: <font color="rgb(0, 255, 0)">' .. Module:GetItemCount(Backpack) .. "</font>")
 end)
 
 Character.ChildAdded:Connect(function()
-	HeldItemVal:SetTitle("Helt Item Value: " .. Module:CalculateHeldItem() .. "")
+	HeldItemVal:SetTitle('Held Item Value: <font color="rgb(0, 255, 0)">' .. Module:CalculateHeldItem() .. "</font>")
 end)
 
 Character.ChildRemoved:Connect(function()
-	HeldItemVal:SetTitle("Helt Item Value: " .. Module:CalculateHeldItem() .. "")
+	HeldItemVal:SetTitle('Held Item Value: <font color="rgb(0, 255, 0)">' .. Module:CalculateHeldItem() .. "</font>")
 end)
+
+Module:SendNotification('<font color="rgb(173,216,230)">Thanks for using Phantom Flux!</font>')
+Module:SendNotification('<font color="rgb(173,216,230)">Join Our Discord For More Updates</font>')
+Module:SendNotification('<font color="rgb(173,216,230)">Scripted by severitysvc :heart: </font>')

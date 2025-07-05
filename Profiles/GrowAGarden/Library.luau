@@ -3,7 +3,7 @@
 local Library = {}
 Library.__index = Library
 
-local RunMode = "Developer"
+local RunMode = "Web"
 
 local WindUI = loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/latest/download/main.lua"))()
 local ExistingWindow = nil

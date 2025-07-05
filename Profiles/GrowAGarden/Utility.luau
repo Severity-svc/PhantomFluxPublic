@@ -1,3 +1,4 @@
+local Lighting = game:GetService("Lighting")
 local TeleportService = game:GetService("TeleportService")
 local Util = {
 	GithubUrl = "https://raw.githubusercontent.com/sentr/PhantomFlux/main/Profiles/GrowAGarden/",
@@ -53,6 +54,7 @@ local Util = {
 
 	Mutations = {
 		"All",
+		"Sandy",
 		"Overgrown",
 		"Wet",
 		"Chilled",
@@ -178,6 +180,12 @@ local Util = {
 		"Mutation Spray Shocked",
 	},
 
+	["Event Crafts"] = {
+		"Ancient Seed Pack",
+		"Mutation Spray Amber",
+		"Dino Crate",
+	},
+
 	Services = {
 		Players = game:GetService("Players"),
 		ReplicatedStorage = game:GetService("ReplicatedStorage"),
@@ -186,6 +194,7 @@ local Util = {
 		Workspace = game:GetService("Workspace"),
 		UserInputService = game:GetService("UserInputService"),
 		TeleportService = game:GetService("TeleportService"),
+		Lighting = game:GetService("Lighting"),
 	},
 
 	LocalPlayer = {
@@ -260,7 +269,7 @@ local Util = {
 			1.74056092e-09,
 			0.0324877948
 		),
-		["Cosmetic Shop"] = CFrame.new(
+		["Cosmetics Shop"] = CFrame.new(
 			-286.219788,
 			2.99999976,
 			-25.2869682,

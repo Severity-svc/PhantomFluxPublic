@@ -1,7 +1,7 @@
 local ModuleHandler = {}
 ModuleHandler.__index = ModuleHandler
 
-local RunMode = "Developer"
+local RunMode = "Web"
 
 --// Loading Modules
 local Import = getgenv().Import
@@ -12,7 +12,10 @@ if not Import then
 end
 
 local Util = Import(RunMode, "Profiles/GrowAGarden/Utility.luau")
-local Handler = Import(RunMode, "Profiles/GrowAGarden/Handler.luau")
+localself = Import(RunMode, "Profiles/GrowAGarden/Handler.luau")
+
+local CalculateValue = require(Util.Services.ReplicatedStorage.Modules.CalculatePlantValue)
+local NotificationHandler = require(game:GetService("ReplicatedStorage").Modules.Notification)
 
 --// Variables
 local Workspace = Util.Services.Workspace
@@ -31,6 +34,15 @@ function ModuleHandler:Init(Function)
 	coroutine.wrap(Function)()
 end
 
+function ModuleHandler:CalculateValue(Fruit)
+	local Value = CalculateValue(Fruit)
+	return Value
+end
+
+function ModuleHandler:SendNotification(Text)
+	NotificationHandler.CreateNotification(_, Text)
+end
+
 function ModuleHandler:FireRemote(RemoteName, Arg1, Arg2) --// This is from the craftig module
 	local CraftingTables = workspace:WaitForChild("CraftingTables")
 	local Remote =
@@ -44,6 +56,13 @@ function ModuleHandler:FireRemote(RemoteName, Arg1, Arg2) --// This is from the 
 			:WaitForChild("GameEvents")
 			:WaitForChild("HoneyMachineService_RE")
 			:FireServer("MachineInteract")
+	elseif RemoteName == "SetRecipe3" then
+		Remote:FireServer(
+			"SetRecipe",
+			workspace:WaitForChild("DinoEvent"):WaitForChild("DinoCraftingTable"),
+			Arg1,
+			Arg2
+		)
 	elseif RemoteName == "BuyGear" then
 		local Args = { Arg1 }
 		game:GetService("ReplicatedStorage")
@@ -434,13 +453,21 @@ function ModuleHandler:SetCraftingRecipe(ItemName, Bench)
 			local FrameName = v.Name:gsub("_", " "):lower()
 			if FrameName:find(ItemName:lower()) then
 				if Bench == 1 then
-					self:FireRemote("SetRecipe1", "SeedEventWorkbench", v.Name)
+					self:FireRemote("SetRecipe1", "SeedEventWorkbench", ItemName)
 				elseif Bench == 2 then
-					self:FireRemote("SetRecipe2", "GearEventWorkbench", v.Name)
+					self:FireRemote("SetRecipe2", "GearEventWorkbench", ItemName)
 				end
 				return v
 			end
 		end
+	end
+
+	if Bench == 1 then
+		self:FireRemote("SetRecipe1", "SeedEventWorkbench", ItemName)
+	elseif Bench == 2 then
+		self:FireRemote("SetRecipe2", "GearEventWorkbench", ItemName)
+	elseif Bench == 3 then
+		self:FireRemote("SetRecipe3", "DinoEventWorkbench", ItemName)
 	end
 end
 
@@ -485,6 +512,12 @@ function ModuleHandler:SubmitItem(Number)
 		fireproximityprompt(Prompt)
 	elseif Number == 2 then
 		local Prompt = workspace.CraftingTables.EventCraftingWorkBench.Model:GetChildren()[4].CraftingProximityPrompt
+		fireproximityprompt(Prompt)
+	elseif Number == 3 then
+		local Prompt = workspace.DinoEvent.DinoCraftingTable
+			:GetChildren()[2].Model
+			:GetChildren()[3].EventCraftingWorkBench.Model.TableTop
+			:GetChildren()[2]
 		fireproximityprompt(Prompt)
 	end
 end
@@ -595,7 +628,7 @@ function ModuleHandler:CalculateInventory()
 
 	for _, v in pairs(Backpack:GetChildren()) do
 		if v:GetAttribute("b", "j") then
-			local FruitValue = Handler:CalculateValue(v)
+			local FruitValue = self:CalculateValue(v)
 			Value = Value + FruitValue
 		end
 	end
@@ -609,11 +642,60 @@ function ModuleHandler:CalculateHeldItem()
 
 	for _, v in pairs(Character:GetChildren()) do
 		if v:IsA("Tool") and v:GetAttribute("b", "j") then
-			Value = Handler:CalculateValue(v)
+			Value = self:CalculateValue(v)
 		end
 	end
 
 	return tostring(Value)
+end
+
+function ModuleHandler:GetItemCount(Directory)
+	local Count = 0
+	for _, v in pairs(Directory:GetChildren()) do
+		Count = Count + 1
+	end
+
+	return Count
+end
+
+--// PetService
+function ModuleHandler:ManagePetService(Action, Arg)
+	local args = {
+		Action,
+		Arg,
+	}
+	game:GetService("ReplicatedStorage")
+		:WaitForChild("GameEvents")
+		:WaitForChild("PetEggService")
+		:FireServer(unpack(args))
+end
+
+--// Crate Service
+function ModuleHandler:ManageCrateService(Action, Arg)
+	local args = {
+		Action,
+		Arg,
+	}
+	game:GetService("ReplicatedStorage")
+		:WaitForChild("GameEvents")
+		:WaitForChild("CosmeticCrateService")
+		:FireServer(unpack(args))
+end
+
+--// Dino Event
+function ModuleHandler:GetPets()
+	local Backpack = Util.LocalPlayer.Backpack
+	local Pets = {}
+	local PetStrings = {}
+
+	for _, v in pairs(Backpack:GetChildren()) do
+		if v:GetAttribute("b", "l") then
+			table.insert(Pets, v)
+			table.insert(PetStrings, v.Name)
+		end
+	end
+
+	return Pets, PetStrings
 end
 
 return ModuleHandler

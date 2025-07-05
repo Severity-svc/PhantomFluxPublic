@@ -683,6 +683,7 @@ function ModuleHandler:ManageCrateService(Action, Arg)
 end
 
 --// Dino Event
+
 function ModuleHandler:GetPets()
 	local Backpack = Util.LocalPlayer.Backpack
 	local Pets = {}

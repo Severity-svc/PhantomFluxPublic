@@ -636,7 +636,7 @@ local Branch = getgenv().Branch
 
 function KeySystem:CheckKey(Key)
 	local Lowered = string.lower(Key)
-	local CorrectKey = string.lower("GLCbrcR9rVHtEXs")
+	local CorrectKey = string.lower("YTAgMoTbKoaiDeHkL")
 
 	if Lowered:find(CorrectKey) then
 		KeySystem:Exit()

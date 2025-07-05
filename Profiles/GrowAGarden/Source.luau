@@ -1,5 +1,5 @@
 --// RunMode: This is for adding updates to the source, make sure to change it to "Public" when you are done.
-local RunMode = "Developer"
+local RunMode = "Web"
 
 --// Loading Modules
 local Import = getgenv().Import

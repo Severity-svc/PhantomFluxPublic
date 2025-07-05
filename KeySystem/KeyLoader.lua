@@ -10,7 +10,7 @@ local KeySystem = {
 		},
 	},
 }
-
+KeySystem.__index = {}
 local TweenService = game:GetService("TweenService")
 
 local PhantomFluxKeySystem = Instance.new("ScreenGui")
@@ -769,7 +769,7 @@ function KeySystem:AttachButton(Parent, Addition)
 	return Button
 end
 
-local fileName = "PhantomFluxKey.json"
+local File = "PhantomFluxKey.json"
 
 function KeySystem:FileExists(file)
 	local success, response = pcall(function()
@@ -779,12 +779,12 @@ function KeySystem:FileExists(file)
 end
 
 function KeySystem:SaveKey(keyToSave)
-	writefile(fileName, keyToSave)
+	writefile(File, keyToSave)
 end
 
 function KeySystem:LoadKey()
-	if fileExists(fileName) then
-		return readfile(fileName)
+	if self:FileExists(File) then
+		return readfile(File)
 	else
 		return nil
 	end
@@ -851,7 +851,8 @@ CheckKeyButton.MouseButton1Click:Connect(function()
 		if KeySystem:CheckKey(InputKey) then
 			KeyBox.PlaceholderText = "Key Valid!"
 			KeyBox.Text = InputKey
-			saveKey(InputKey)
+			KeySystem:SaveKey(InputKey)
+
 			task.wait(0.5)
 		else
 			KeySystem:Notify({
@@ -864,12 +865,12 @@ CheckKeyButton.MouseButton1Click:Connect(function()
 	end
 end)
 
-local savedKey = loadKey()
-if savedKey then
-	KeyBox.Text = savedKey
+local Saved = KeySystem:LoadKey()
+
+if Saved then
+	KeyBox.Text = Saved
 	KeyBox.PlaceholderText = "Saved Key Loaded"
-	task.wait(0.1)
-	processKeyCheck()
+	KeySystem:CheckKey(Saved)
 end
 
 --// Animations

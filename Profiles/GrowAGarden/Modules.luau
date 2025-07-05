@@ -689,7 +689,7 @@ function ModuleHandler:GetPets()
 	local PetStrings = {}
 
 	for _, v in pairs(Backpack:GetChildren()) do
-		if v:GetAttribute("b", "l") then
+		if v:GetAttribute("b", "l") and v:FindFirstChild("PetToolLocal") then
 			table.insert(Pets, v)
 			table.insert(PetStrings, v.Name)
 		end

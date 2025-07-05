@@ -1,3 +1,9 @@
+local Collection = {
+	["Alias"] = {
+		["GrowAGarden"] = 126884695634066,
+	},
+}
+
 if not getgenv().Import then
 	getgenv().Import = function(RunMode, FileName)
 		if RunMode == "Developer" then
@@ -36,13 +42,12 @@ if not getgenv().Import then
 	end
 end
 
-local Util = Import("Web", "GlobalUtility.lua")
 local GameID = game.PlaceId
 
-for i, v in pairs(Util.Alias) do
+for i, v in pairs(Collection.Alias) do
 	if v == GameID then
 		local Branch = i
 		getgenv().Branch = "Profiles/" .. Branch .. "/Source.luau"
-		Import("Web", "KeySystem.KeyLoader.lua")
+		Import("Web", "KeySystem/KeyLoader.lua")
 	end
 end

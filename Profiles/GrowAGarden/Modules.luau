@@ -337,7 +337,7 @@ end
 
 --// Object_Physical
 
-function ModuleHandler:GetPet()
+function ModuleHandler:GetEgg()
 	local Farm, Imp = self:GetFarm()
 
 	for _, v in pairs(Imp:FindFirstChild("Objects_Physical"):GetChildren()) do

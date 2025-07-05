@@ -19,7 +19,7 @@ function Library:Init()
 			Title = "PhantomFlux | Grow a Garden",
 			Icon = "rbxassetid://79794145409508",
 			IconThemed = true,
-			Author = "severitysvc",
+			Author = "Scripted by: severitysvc",
 			Folder = "PhantomFlux",
 			Size = UDim2.fromOffset(620, 480),
 			Transparent = true,

@@ -834,6 +834,10 @@ local TpButton = Library:CreateButton(Misc, {
 Library:CreateSection(Misc, "Auto Hatching")
 
 --// Server Hopping
+Library:CreateSection(Misc, "Server Hop")
+
 if getgenv().queue_on_teleport then
 	queue_on_teleport(Import("Web", "Loader.lua"))
 end
+
+Handler:ServerHop("Oldest")

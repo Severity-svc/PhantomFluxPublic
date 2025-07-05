@@ -47,7 +47,7 @@ local GameID = game.PlaceId
 for i, v in pairs(Collection.Alias) do
 	if v == GameID then
 		local Branch = i
-		getgenv().Branch = "Profiles/" .. Branch .. "/Source.luau"
+		getgenv().Branch = "Profiles/" .. Branch .. "/Source.lua"
 		Import("Web", "KeySystem/KeyLoader.lua")
 	end
 end

@@ -31,7 +31,7 @@ function Library:Init()
 			},
 			SideBarWidth = 200,
 			ScrollBarEnabled = true,
-			KeySystem = false, --// Will use our custom keysystem in the loader.luau
+			KeySystem = false, --// Will use our custom keysystem in the loader.lua
 		})
 
 		ExistingWindow = Window

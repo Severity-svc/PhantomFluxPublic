@@ -43,6 +43,6 @@ for i, v in pairs(Util.Alias) do
 	if v == GameID then
 		local Branch = i
 
-		Import("Web", Branch .. "/Source.luau")
+		Import("Web", "Profiles/" .. Branch .. "/Source.luau")
 	end
 end

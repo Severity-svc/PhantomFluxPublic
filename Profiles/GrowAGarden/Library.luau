@@ -99,11 +99,11 @@ function Library:AddConfigSection()
 		Window:Tab({ Title = "Create Theme", Icon = "palette", Desc = "Design and apply custom themes." })
 end
 
-function Library:CreateSection(Tab, Title)
+function Library:CreateSection(Tab, Title, Size)
 	local Section = Tab:Section({
 		Title = Title,
 		TextXAlignment = "Left",
-		TextSize = 17,
+		TextSize = Size or 17,
 	})
 
 	return Section

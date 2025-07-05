@@ -5,8 +5,14 @@ local RunMode = "Developer"
 local Import = getgenv().Import
 
 if not Import then
-	error("Import not found")
-	return
+	local GlobUtil = loadstring(
+		game:HttpGet(
+			"https://raw.githubusercontent.com/Severity-svc/PhantomFluxPublic/refs/heads/main/GlobalUtility.lua"
+		)
+	)()
+
+	GlobUtil:RestoreImport()
+	Import = getgenv().Import
 end
 
 local Util = Import(RunMode, "Profiles/GrowAGarden/Utility.luau")
@@ -833,11 +839,72 @@ local TpButton = Library:CreateButton(Misc, {
 --// Pets
 Library:CreateSection(Misc, "Auto Hatching")
 
---// Server Hopping
-Library:CreateSection(Misc, "Server Hop")
+Library:CreateSection(Misc, "Auto Craft Seeds")
+local SeedToCraft = "Peace Lily"
+local SeedCrafts = Library:CreateDropdown(Misc, {
+	Title = "Seed to Craft",
+	Values = Handler:SortArray(Util["Seed Crafts"]),
+	Value = "Peace Lily",
+	Multi = false,
+	AllowNone = true,
+	Callback = function(option)
+		SeedToCraft = option
+	end,
+})
 
-if getgenv().queue_on_teleport then
-	queue_on_teleport(Import("Web", "Loader.lua"))
-end
+local SeedCraft = Library:CreateButton(Misc, {
+	Title = "Craft Selected Seed",
+	Desc = "Crafts the seed you selected",
+	Locked = false,
+	Callback = function()
+		Module:Craft(SeedToCraft, 1)
+	end,
+})
 
-Handler:ServerHop("Oldest")
+Library:CreateSection(Misc, "Auto Craft Gears")
+local GearToCraft = "Lightning rod"
+local GearCrafts = Library:CreateDropdown(Misc, {
+	Title = "Gear to Craft",
+	Values = Handler:SortArray(Util["Gear Crafts"]),
+	Value = "Gear to Craft",
+	Multi = false,
+	AllowNone = true,
+	Callback = function(option)
+		GearToCraft = option
+	end,
+})
+
+local GearCrafts = Library:CreateButton(Misc, {
+	Title = "Craft Selected Seed",
+	Desc = "Crafts the seed you selected",
+	Locked = false,
+	Callback = function()
+		Module:Craft(GearToCraft, 2)
+	end,
+})
+
+Library:CreateSection(Misc, "Player Stats", 20)
+local InventoryValue = Misc:Section({
+	Title = "Section",
+	TextXAlignment = "Left",
+	TextSize = 17, -- Default Size
+}) --Library:CreateSection(Misc, "Inventory Value: " .. tostring(Module:CalculateInventory()) .. "")
+local HeldItemVal = Library:CreateSection(Misc, "Held Item Value: " .. tostring(Module:CalculateHeldItem()) .. "")
+Library:CreateSection(Misc, "")
+Library:CreateSection(Misc, "")
+
+Backpack.ChildAdded:Connect(function()
+	InventoryValue:SetTitle("Inventory Value: " .. tostring(Module:CalculateInventory()) .. "")
+end)
+
+Backpack.ChildRemoved:Connect(function()
+	InventoryValue:SetTitle("Inventory Value: " .. tostring(Module:CalculateHeldItem()) .. "")
+end)
+
+Character.ChildAdded:Connect(function()
+	HeldItemVal:SetTitle("Helt Item Value: " .. Module:CalculateHeldItem() .. "")
+end)
+
+Character.ChildRemoved:Connect(function()
+	HeldItemVal:SetTitle("Helt Item Value: " .. Module:CalculateHeldItem() .. "")
+end)

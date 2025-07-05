@@ -12,6 +12,7 @@ if not Import then
 end
 
 local Util = Import(RunMode, "Profiles/GrowAGarden/Utility.luau")
+local Handler = Import(RunMode, "Profiles/GrowAGarden/Handler.luau")
 
 --// Variables
 local Workspace = Util.Services.Workspace
@@ -20,8 +21,6 @@ local LocalPlayer = Util.LocalPlayer.Player
 local Character = Util.LocalPlayer.Character
 local Humanoid = Util.LocalPlayer.Humanoid
 local HumanoidRootPart = Util.LocalPlayer.HumanoidRootPart
-local Backpack = Util.LocalPlayer.Backpack
-local PlayerGui = Util.LocalPlayer.PlayerGui
 
 function ModuleHandler:Init(Function)
 	if type(Function) ~= "function" then
@@ -30,6 +29,28 @@ function ModuleHandler:Init(Function)
 	end
 
 	coroutine.wrap(Function)()
+end
+
+function ModuleHandler:FireRemote(RemoteName, Arg1, Arg2) --// This is from the craftig module
+	local CraftingTables = workspace:WaitForChild("CraftingTables")
+	local Remote =
+		game:GetService("ReplicatedStorage"):WaitForChild("GameEvents"):WaitForChild("CraftingGlobalObjectService")
+	if RemoteName == "SetRecipe1" then
+		Remote:FireServer("SetRecipe", CraftingTables:WaitForChild("SeedEventCraftingWorkBench"), Arg1, Arg2)
+	elseif RemoteName == "SetRecipe2" then
+		Remote:FireServer("SetRecipe", CraftingTables:WaitForChild("EventCraftingWorkBench"), Arg1, Arg2)
+	elseif RemoteName == "Polinate" then
+		game:GetService("ReplicatedStorage")
+			:WaitForChild("GameEvents")
+			:WaitForChild("HoneyMachineService_RE")
+			:FireServer("MachineInteract")
+	elseif RemoteName == "BuyGear" then
+		local Args = { Arg1 }
+		game:GetService("ReplicatedStorage")
+			:WaitForChild("GameEvents")
+			:WaitForChild("BuyGearStock")
+			:FireServer(unpack(Args))
+	end
 end
 
 function ModuleHandler:SpawnConnection()
@@ -347,6 +368,252 @@ function ModuleHandler:GetEgg()
 	end
 
 	return nil
+end
+
+--// Honey
+function ModuleHandler:GetPolinated(Equip)
+	for _, v in pairs(Util.LocalPlayer.Backpack:GetChildren()) do
+		if v.Name:find("Polinated") then
+			if Equip then
+				Humanoid:EquipTool(v)
+			end
+
+			return v
+		end
+	end
+
+	for _, v in pairs(Util.LocalPlayer.Character:GetChildren()) do
+		if v.Name:find("Polinated") and v:IsA("Tool") then
+			return v
+		end
+	end
+
+	return nil
+end
+
+function ModuleHandler:InsertFruit()
+	local args = {
+		"MachineInteract",
+	}
+	game:GetService("ReplicatedStorage")
+		:WaitForChild("GameEvents")
+		:WaitForChild("HoneyMachineService_RE")
+		:FireServer(unpack(args))
+end
+
+function ModuleHandler:RefreshSelectionUI(Number)
+	local SelectionUI = Util.LocalPlayer.PlayerGui:FindFirstChild("RecipeSelection_UI")
+	if not SelectionUI then
+		return
+	end
+
+	if Number == 1 then
+		local Prompt = workspace.CraftingTables.SeedEventCraftingWorkBench.Model.BenchTable.CraftingProximityPrompt
+		fireproximityprompt(Prompt)
+	elseif Number == 2 then
+		local Prompt = workspace.CraftingTables.EventCraftingWorkBench.Model:GetChildren()[4].CraftingProximityPrompt
+		fireproximityprompt(Prompt)
+	end
+
+	SelectionUI.Enabled = false
+	Util.Services.Lighting:FindFirstChild("Blur").Enabled = false
+end
+
+function ModuleHandler:SetCraftingRecipe(ItemName, Bench)
+	if typeof(Bench) ~= "number" or typeof(ItemName) ~= "string" then
+		return
+	end
+	self:RefreshSelectionUI(Bench)
+	task.wait(0.2)
+	local SelectionUI = Util.LocalPlayer.PlayerGui:WaitForChild("RecipeSelection_UI")
+	local Frame = SelectionUI:WaitForChild("Frame")
+	local Scroll = Frame:WaitForChild("ScrollingFrame")
+
+	for _, v in pairs(Scroll:GetChildren()) do
+		if v:IsA("Frame") and not v.Name:find("_Padding") then
+			local FrameName = v.Name:gsub("_", " "):lower()
+			if FrameName:find(ItemName:lower()) then
+				if Bench == 1 then
+					self:FireRemote("SetRecipe1", "SeedEventWorkbench", v.Name)
+				elseif Bench == 2 then
+					self:FireRemote("SetRecipe2", "GearEventWorkbench", v.Name)
+				end
+				return v
+			end
+		end
+	end
+end
+
+function ModuleHandler:GetIngredients(Recipe)
+	local Ingredients = {}
+	if typeof(Recipe) ~= "Instance" then
+		return Ingredients
+	end
+
+	local MainFrame = Recipe:FindFirstChild("Main_Frame")
+	local Display = MainFrame and MainFrame:FindFirstChild("Display")
+	local Details = Display and Display:FindFirstChild("RecipeDetails")
+	if not Details then
+		return Ingredients
+	end
+
+	local timeout, elapsed = 2, 0
+	while #Details:GetChildren() == 0 and elapsed < timeout do
+		task.wait(0.1)
+		elapsed += 0.1
+	end
+
+	if #Details:GetChildren() == 0 then
+		return Ingredients
+	end
+
+	for _, v in pairs(Details:GetChildren()) do
+		if v:IsA("Frame") then
+			local ItemName = v:FindFirstChild("ItemName")
+			local ItemAmount = v:FindFirstChild("ItemAmount")
+			if ItemName and ItemName:IsA("TextLabel") then
+				Ingredients[ItemName.Text] = tonumber(ItemAmount.Text:match("%d+"))
+			end
+		end
+	end
+	return Ingredients
+end
+
+function ModuleHandler:SubmitItem(Number)
+	if Number == 1 then
+		local Prompt = workspace.CraftingTables.SeedEventCraftingWorkBench.Model.BenchTable.CraftingProximityPrompt
+		fireproximityprompt(Prompt)
+	elseif Number == 2 then
+		local Prompt = workspace.CraftingTables.EventCraftingWorkBench.Model:GetChildren()[4].CraftingProximityPrompt
+		fireproximityprompt(Prompt)
+	end
+end
+
+function ModuleHandler:HasItem(ItemName, Apply)
+	local Backpack = LocalPlayer:FindFirstChild("Backpack")
+	if not Backpack then
+		return false
+	end
+	for _, v in pairs(Backpack:GetChildren()) do
+		if v:IsA("Tool") and v.Name:lower():find(ItemName:lower()) then
+			if Apply then
+				Humanoid:EquipTool(v)
+			end
+			return true, v
+		end
+	end
+	return false
+end
+
+function ModuleHandler:Craft(Item, Bench)
+	local Recipe = self:SetCraftingRecipe(Item, Bench)
+	if not Recipe then
+		return
+	end
+	task.wait(0.25)
+	local Ingredients = self:GetIngredients(Recipe)
+	local Submitted = false
+	for I, V in pairs(Ingredients) do
+		if I ~= "Name" then
+			if I == "Honey" then
+				local HoneyAmount = Util.LocalPlayer.PlayerGui.Honey_UI.Frame.TextLabel1.val.Value
+				if HoneyAmount and HoneyAmount < V then
+					local Has, Tool = self:HasItem("Polinated", true)
+					if Has then
+						self:FireRemote("Polinate")
+					else
+						local Found = false
+						for _, Obj in pairs(self:GetFarm().Important:GetChildren()) do
+							if Obj:IsA("Model") and Obj:GetAttribute("Polinated") then
+								for _, Prompt in pairs(Obj:GetDescendants()) do
+									if Prompt:IsA("ProximityPrompt") then
+										fireproximityprompt(Prompt)
+										task.wait(0.1)
+										local HasTool = self:HasItem("Polinated", true)
+										if HasTool then
+											self:FireRemote("Polinate")
+											Found = true
+											break
+										end
+									end
+								end
+							end
+							if Found then
+								break
+							end
+						end
+					end
+				end
+			elseif I:find("Sprinkler") then
+				local Has, Tool = self:HasItem(I, true)
+				if Has then
+					task.wait(1)
+					self:SubmitItem(Bench)
+					Submitted = true
+				else
+					local GearShop = Util.LocalPlayer.PlayerGui.Gear_Shop.Frame.ScrollingFrame
+					if GearShop:FindFirstChild(I) then
+						local MainFrame = GearShop[I]:FindFirstChild("Main_Frame")
+						local Stock = MainFrame and MainFrame:FindFirstChild("Stock_Text")
+						if Stock then
+							local Tries = 0
+							while Stock.Text == "X0 Stock" and Tries < 50 do
+								task.wait(0.2)
+								Tries += 1
+							end
+							if Stock.Text ~= "X0 Stock" then
+								self:FireRemote("BuyGear", I)
+							end
+						end
+					end
+				end
+			else
+				local Has, Tool = self:HasItem(I, true)
+				if Has and Tool then
+					local ItemType
+					for K, V3 in pairs(Util.Types) do
+						if V3 == Tool:GetAttribute("b") then
+							ItemType = K
+							break
+						end
+					end
+					if ItemType then
+						task.wait(1)
+						self:SubmitItem(Bench)
+						Submitted = true
+					end
+				end
+			end
+		end
+	end
+end
+
+--// Stats
+function ModuleHandler:CalculateInventory()
+	local Backpack = Util.LocalPlayer.Backpack
+	local Value = 0
+
+	for _, v in pairs(Backpack:GetChildren()) do
+		if v:GetAttribute("b", "j") then
+			local FruitValue = Handler:CalculateValue(v)
+			Value = Value + FruitValue
+		end
+	end
+
+	return tostring(Value)
+end
+
+function ModuleHandler:CalculateHeldItem()
+	local Backpack = Util.LocalPlayer.Backpack
+	local Value = 0
+
+	for _, v in pairs(Character:GetChildren()) do
+		if v:IsA("Tool") and v:GetAttribute("b", "j") then
+			Value = Handler:CalculateValue(v)
+		end
+	end
+
+	return tostring(Value)
 end
 
 return ModuleHandler

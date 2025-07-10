@@ -473,14 +473,22 @@ local av = {
 	["["] = ar,
 	["{"] = at,
 }
-a4 = function(a8, a9)
-	local as = a8:sub(a9, a9)
-	local a2 = av[as]
-	if a2 then
-		return a2(a8, a9)
+a4 = function(a8, a0)
+	a0 = a7(a8, a0, L, true)
+	local T = a8:sub(a0, a0)
+	if T == '"' then
+		return ak(a8, a0)
+	elseif T == "-" or T:match("%d") then
+		return ao(a8, a0)
+	elseif T == "{" then
+		return at(a8, a0)
+	elseif T == "[" then
+		return ar(a8, a0)
+	else
+		return ap(a8, a0)
 	end
-	ac(a8, a9, "unexpected character '" .. as .. "'")
 end
+
 local aw = function(a8)
 	if type(a8) ~= "string" then
 		error("expected argument of type string, got " .. type(a8))

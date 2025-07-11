@@ -1,14 +1,8 @@
-local Collection = {
-	["Alias"] = {
-		["GrowAGarden"] = 126884695634066,
-	},
-}
-
-function Collection:RestoreImport()
-	getgenv().Import = function(RunMode, FileName)
+return function()
+	getgenv().Import = function(RunMode, FilePath)
 		if RunMode == "Developer" then
-			local DirPath = "C:/Users/sentr/OneDrive/Documents/GitHub/PhantomFlux/"
-			local FilePath = DirPath .. FileName
+			local DirPath = "C:/Users/sentr/OneDrive/Documents/GitHub/PhantomFlux-V2"
+			local FilePath = DirPath .. FilePath
 
 			if isfile(FilePath) then
 				local Source = readfile(FilePath)
@@ -22,7 +16,7 @@ function Collection:RestoreImport()
 			end
 		elseif RunMode == "Web" then
 			local BaseUrl = "https://raw.githubusercontent.com/Severity-svc/PhantomFluxPublic/main/"
-			local FilePath = BaseUrl .. FileName
+			local FilePath = BaseUrl .. FilePath
 
 			local Success, Response = pcall(function()
 				return game:HttpGet(FilePath)
@@ -32,6 +26,7 @@ function Collection:RestoreImport()
 				if Response:find("<html>") then
 					error("[Import]: Invalid response content: " .. FilePath)
 				end
+
 				return loadstring(Response)()
 			else
 				error("[Import]: Failed to fetch file from URL: " .. FilePath)
@@ -41,5 +36,3 @@ function Collection:RestoreImport()
 		end
 	end
 end
-
-return Collection

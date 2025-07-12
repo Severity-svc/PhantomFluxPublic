@@ -6,7 +6,7 @@ local Alias = {
 }
 
 getgenv().Import = function(RunMode, FilePath)
-	if RunMode == "Web" then
+	if RunMode == "Developer" then
 		local DirPath = "PhantomFlux-V2/"
 		local FilePath = DirPath .. FilePath
 

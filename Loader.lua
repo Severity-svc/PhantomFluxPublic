@@ -51,5 +51,7 @@ for i, v in pairs(Alias) do
 	if v == GameID then
 		getgenv().Branch = "Profiles/" .. i .. "/Source.lua"
 		Import(RunMode, "Library/KeySystem/KeyLoader.lua")
+
+		print(tostring(getgenv().Branch))
 	end
 end

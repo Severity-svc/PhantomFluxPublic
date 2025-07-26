@@ -53,5 +53,7 @@ for i, v in pairs(Alias) do
 		Import(RunMode, "Library/KeySystem/KeyLoader.lua")
 
 		print(tostring(getgenv().Branch))
+	else
+		warn("[Loader]: game not supported")
 	end
 end

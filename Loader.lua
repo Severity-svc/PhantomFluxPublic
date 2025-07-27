@@ -3,7 +3,7 @@ local GameID = game.PlaceId
 
 local Alias = {
 	["GrowAGarden"] = 126884695634066,
-	["StealABrainrot"] = 96342491571673,
+	["StealABrainrot"] = 96342491571673, 109983668079237,
 }
 
 getgenv().Import = function(RunMode, FilePath)

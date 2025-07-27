@@ -50,7 +50,7 @@ local Match = false
 
 for i, v in pairs(Alias) do
 	if type(v) == "table" then
-		for _, v2 in ipairs(ids) do
+		for _, v2 in ipairs(v) do
 			if v2 == GameID then
 				Match = true
 				getgenv().Branch = "Profiles/" .. i .. "/Source.lua"
